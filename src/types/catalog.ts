@@ -1,10 +1,10 @@
-// Matches CatalogItemResponseDTO (api-reference.md, section 4.0).
+// CatalogItemResponseDTO
 export interface CatalogItem {
   id: number
   name: string
   description: string
-  basePrice: number // JSON number: 30.00 arrives as 30, so format it for display
+  basePrice: number
   active: boolean
-  createdAt: string // ISO local date-time without time zone, e.g. "2026-11-20T09:00:00"
+  createdAt: string
   estimatedHours: number
 }
