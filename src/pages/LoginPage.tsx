@@ -1,11 +1,13 @@
-import { useState, type FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router'
+import { useState, type SubmitEvent } from 'react'
+import { Navigate, useLocation, useNavigate } from 'react-router'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 
 function LoginPage() {
   const { user, login } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const registered = (location.state as { registered?: boolean } | null)?.registered === true
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -17,7 +19,7 @@ function LoginPage() {
     return <Navigate to="/" replace />
   }
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setSubmitting(true)
     setError(null)
@@ -40,7 +42,8 @@ function LoginPage() {
   return (
     <>
       <h1>Login</h1>
-      <form className="login-form" onSubmit={handleSubmit}>
+      {registered && <p className="success">Account created, please log in.</p>}
+      <form className="auth-form" onSubmit={handleSubmit}>
         {error && <p className="error">{error}</p>}
 
         <div className="form-field">

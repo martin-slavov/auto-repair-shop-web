@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type ReactNode } from 'react'
 import { login as loginRequest } from '../api/auth'
+import { setUnauthorizedHandler } from '../api/client'
 import type { AuthUser } from '../types/auth'
 import { AuthContext } from './AuthContext'
 import { decodeToken } from './jwt'
@@ -31,10 +32,15 @@ function AuthProvider({ children }: { children: ReactNode }) {
     setUser(newUser)
   }
 
-  function logout() {
+  const logout = useCallback(() => {
     removeToken()
     setUser(null)
-  }
+  }, [])
+
+  useEffect(() => {
+    setUnauthorizedHandler(logout)
+    return () => setUnauthorizedHandler(null)
+  }, [logout])
 
   return (
     <AuthContext.Provider value={{ user, login, logout }}>

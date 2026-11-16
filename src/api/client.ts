@@ -13,6 +13,12 @@ export class ApiError extends Error {
   }
 }
 
+let unauthorizedHandler: (() => void) | null = null
+
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  unauthorizedHandler = handler
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const baseUrl: string | undefined = import.meta.env.VITE_API_BASE_URL
   if (!baseUrl) {
@@ -29,6 +35,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
   const response = await fetch(baseUrl + path, { ...options, headers })
   if (!response.ok) {
+    // Only a 401 for a request that sent a token means the session is no longer valid.
+    // Without a token (e.g. a wrong password on login) it is a normal error for the form.
+    if (response.status === 401 && token && unauthorizedHandler) {
+      unauthorizedHandler()
+    }
+
     let message = `Request failed (${response.status})`
     let fieldErrors: Record<string, string> = {}
     try {

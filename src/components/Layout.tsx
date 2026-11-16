@@ -4,6 +4,9 @@ import { useAuth } from '../auth/useAuth'
 function Layout() {
   const { user, logout } = useAuth()
 
+  const canSeeVehicles = user?.role === 'CUSTOMER' || user?.role === 'ADMIN'
+  const isAdmin = user?.role === 'ADMIN'
+
   return (
     <>
       <nav className="nav">
@@ -11,6 +14,8 @@ function Layout() {
           Home
         </NavLink>
         <NavLink to="/services">Services</NavLink>
+        {canSeeVehicles && <NavLink to="/vehicles">Vehicles</NavLink>}
+        {isAdmin && <NavLink to="/admin/users">Admin</NavLink>}
 
         <div className="nav-user">
           {user ? (
@@ -23,7 +28,10 @@ function Layout() {
               </button>
             </>
           ) : (
-            <NavLink to="/login">Login</NavLink>
+            <>
+              <NavLink to="/login">Login</NavLink>
+              <NavLink to="/register">Register</NavLink>
+            </>
           )}
         </div>
       </nav>
