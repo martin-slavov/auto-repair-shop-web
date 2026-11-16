@@ -8,6 +8,7 @@ import RegisterPage from './pages/RegisterPage'
 import VehiclesPage from './pages/VehiclesPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import NotFoundPage from './pages/NotFoundPage'
+import UiPreviewPage from './pages/UiPreviewPage'
 import './App.css'
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="services" element={<CatalogPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="register" element={<RegisterPage />} />
+        <Route path="ui-preview" element={<UiPreviewPage />} />
 
         <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN']} />}>
           <Route path="vehicles" element={<VehiclesPage />} />
