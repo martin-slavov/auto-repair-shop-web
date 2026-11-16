@@ -117,10 +117,8 @@ function Layout() {
         )}
       </header>
 
-      <main className="flex-1 bg-muted">
-        <div className="mx-auto w-full max-w-5xl px-4 py-8">
-          <Outlet />
-        </div>
+      <main className="flex flex-1 flex-col bg-muted">
+        <Outlet />
       </main>
 
       <footer className="bg-foreground text-background/70">

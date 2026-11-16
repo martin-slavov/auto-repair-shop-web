@@ -1,8 +1,15 @@
+import CallToAction from '@/components/home/CallToAction'
+import FeaturesSection from '@/components/home/FeaturesSection'
+import HeroSection from '@/components/home/HeroSection'
+import ServicesPreview from '@/components/home/ServicesPreview'
+
 function HomePage() {
   return (
     <>
-      <h1>Welcome to the Auto Repair Shop</h1>
-      <p>Browse our services to see what we can do for your car.</p>
+      <HeroSection />
+      <ServicesPreview />
+      <FeaturesSection />
+      <CallToAction />
     </>
   )
 }
