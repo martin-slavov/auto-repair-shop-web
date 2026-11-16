@@ -26,7 +26,7 @@ function HeroSection() {
             <span className="h-5 w-1.5 bg-primary" aria-hidden="true" />
             Auto Repair Shop
           </p>
-          <h1 className="mt-4 text-5xl leading-none uppercase md:text-7xl">
+          <h1 className="mt-4 text-5xl leading-none text-balance uppercase md:text-7xl">
             Keep your car on the road
           </h1>
           <p className="mt-6 text-lg text-background/80">
