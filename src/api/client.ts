@@ -57,7 +57,8 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new ApiError(message, response.status, fieldErrors)
   }
 
-  return (await response.json()) as T
+  const text = await response.text()
+  return (text ? JSON.parse(text) : undefined) as T
 }
 
 export type QueryValue = string | number | boolean | null | undefined
@@ -84,4 +85,16 @@ export function apiPost<T>(path: string, body: unknown): Promise<T> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   })
+}
+
+export function apiPut<T>(path: string, body: unknown): Promise<T> {
+  return request<T>(path, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
+export function apiDelete(path: string): Promise<void> {
+  return request<void>(path, { method: 'DELETE' })
 }
