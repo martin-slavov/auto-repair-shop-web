@@ -2,23 +2,20 @@ import { useId } from 'react'
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import type { SortState } from '../../types/api'
-import type { VehicleSortField } from '../../types/vehicle'
+import type { SortState } from '@/types/api'
 
-const SORT_OPTIONS: { value: VehicleSortField; label: string }[] = [
-  { value: 'licensePlate', label: 'License plate' },
-  { value: 'manufacturer', label: 'Manufacturer' },
-  { value: 'model', label: 'Model' },
-  { value: 'year', label: 'Year' },
-  { value: 'firstRegistrationDate', label: 'First registration' },
-]
-
-interface VehicleSortControlProps {
-  sort: SortState<VehicleSortField>
-  onSortChange: (field: VehicleSortField) => void
+export interface SortOption<S extends string> {
+  value: S
+  label: string
 }
 
-function VehicleSortControl({ sort, onSortChange }: VehicleSortControlProps) {
+interface SortControlProps<S extends string> {
+  options: SortOption<S>[]
+  sort: SortState<S>
+  onSortChange: (field: S) => void
+}
+
+function SortControl<S extends string>({ options, sort, onSortChange }: SortControlProps<S>) {
   const selectId = useId()
   const ascending = sort.direction === 'asc'
 
@@ -29,12 +26,12 @@ function VehicleSortControl({ sort, onSortChange }: VehicleSortControlProps) {
         id={selectId}
         value={sort.field}
         onChange={(event) => {
-          const field = event.target.value as VehicleSortField
+          const field = event.target.value as S
           if (field !== sort.field) onSortChange(field)
         }}
         className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        {SORT_OPTIONS.map((option) => (
+        {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
@@ -54,4 +51,4 @@ function VehicleSortControl({ sort, onSortChange }: VehicleSortControlProps) {
   )
 }
 
-export default VehicleSortControl
+export default SortControl

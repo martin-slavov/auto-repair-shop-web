@@ -7,6 +7,10 @@ import CatalogPage from './pages/CatalogPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import VehiclesPage from './pages/VehiclesPage'
+import ServiceRequestsPage from './pages/ServiceRequestsPage'
+import VisitsPage from './pages/VisitsPage'
+import InvoicesPage from './pages/InvoicesPage'
+import InvoiceViewPage from './pages/InvoiceViewPage'
 import AdminUsersPage from './pages/AdminUsersPage'
 import NotFoundPage from './pages/NotFoundPage'
 import UiPreviewPage from './pages/UiPreviewPage'
@@ -25,6 +29,13 @@ function App() {
 
           <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN']} />}>
             <Route path="vehicles" element={<VehiclesPage />} />
+            <Route path="service-requests" element={<ServiceRequestsPage />} />
+          </Route>
+
+          <Route element={<RequireRole allowedRoles={['CUSTOMER']} />}>
+            <Route path="visits" element={<VisitsPage />} />
+            <Route path="invoices" element={<InvoicesPage />} />
+            <Route path="invoices/:id" element={<InvoiceViewPage />} />
           </Route>
 
           <Route element={<RequireRole allowedRoles={['ADMIN']} />}>

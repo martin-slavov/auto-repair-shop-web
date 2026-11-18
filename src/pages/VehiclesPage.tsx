@@ -5,13 +5,13 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import TablePagination from '@/components/data-table/TablePagination'
+import SortControl, { type SortOption } from '@/components/data-table/SortControl'
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog'
 import VehicleFormDialog from '@/components/vehicles/VehicleFormDialog'
-import DeleteVehicleDialog from '@/components/vehicles/DeleteVehicleDialog'
 import VehicleTable from '@/components/vehicles/VehicleTable'
 import VehicleCardGrid from '@/components/vehicles/VehicleCardGrid'
-import VehicleSortControl from '@/components/vehicles/VehicleSortControl'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
-import { getVehicles } from '../api/vehicles'
+import { deleteVehicle, getVehicles } from '../api/vehicles'
 import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import type { Vehicle, VehicleSortField } from '../types/vehicle'
@@ -26,6 +26,14 @@ type VehicleFilters = {
 
 const initialFilters: VehicleFilters = { licensePlate: '', manufacturer: '', model: '' }
 const initialSort: SortState<VehicleSortField> = { field: 'licensePlate', direction: 'asc' }
+
+const sortOptions: SortOption<VehicleSortField>[] = [
+  { value: 'licensePlate', label: 'License plate' },
+  { value: 'manufacturer', label: 'Manufacturer' },
+  { value: 'model', label: 'Model' },
+  { value: 'year', label: 'Year' },
+  { value: 'firstRegistrationDate', label: 'First registration' },
+]
 
 const fetchVehiclePage: FetchPage<Vehicle, VehicleSortField, VehicleFilters> = (
   { page, size, sort, filters },
@@ -196,7 +204,11 @@ function VehiclesPage() {
             />
           ) : (
             <>
-              <VehicleSortControl sort={table.sort} onSortChange={table.toggleSort} />
+              <SortControl
+                options={sortOptions}
+                sort={table.sort}
+                onSortChange={table.toggleSort}
+              />
               <VehicleCardGrid
                 rows={table.rows}
                 loading={table.loading}
@@ -242,11 +254,20 @@ function VehiclesPage() {
         onRefreshNeeded={table.refresh}
       />
 
-      <DeleteVehicleDialog
+      <ConfirmDeleteDialog
         open={deleteOpen}
-        vehicle={deleteTarget}
+        title="Delete vehicle?"
+        description={
+          deleteTarget &&
+          `${deleteTarget.licensePlate} (${deleteTarget.manufacturer} ${deleteTarget.model}) will be deleted permanently. This cannot be undone.`
+        }
         onOpenChange={setDeleteOpen}
-        onDeleted={handleDeleted}
+        onConfirm={async () => {
+          if (deleteTarget) await deleteVehicle(deleteTarget.id)
+        }}
+        onDeleted={() => {
+          if (deleteTarget) handleDeleted(deleteTarget)
+        }}
         onRefreshNeeded={table.refresh}
       />
     </>

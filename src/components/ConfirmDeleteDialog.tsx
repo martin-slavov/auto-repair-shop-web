@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -8,25 +8,27 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { ApiError } from '../../api/client'
-import { deleteVehicle } from '../../api/vehicles'
-import type { Vehicle } from '../../types/vehicle'
+import { ApiError } from '../api/client'
 
-interface DeleteVehicleDialogProps {
+interface ConfirmDeleteDialogProps {
   open: boolean
-  vehicle: Vehicle | null
+  title: string
+  description: ReactNode
   onOpenChange: (open: boolean) => void
-  onDeleted: (vehicle: Vehicle) => void
+  onConfirm: () => Promise<void>
+  onDeleted: () => void
   onRefreshNeeded: () => void
 }
 
-function DeleteVehicleDialog({
+function ConfirmDeleteDialog({
   open,
-  vehicle,
+  title,
+  description,
   onOpenChange,
+  onConfirm,
   onDeleted,
   onRefreshNeeded,
-}: DeleteVehicleDialogProps) {
+}: ConfirmDeleteDialogProps) {
   const [deleting, setDeleting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
@@ -50,13 +52,12 @@ function DeleteVehicleDialog({
   }
 
   async function handleDelete() {
-    if (!vehicle) return
     setError(null)
     setDeleting(true)
     try {
-      await deleteVehicle(vehicle.id)
+      await onConfirm()
       setDeleting(false)
-      onDeleted(vehicle)
+      onDeleted()
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setError(err.message)
@@ -74,11 +75,8 @@ function DeleteVehicleDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete vehicle?</DialogTitle>
-          <DialogDescription>
-            {vehicle &&
-              `${vehicle.licensePlate} (${vehicle.manufacturer} ${vehicle.model}) will be deleted permanently. This cannot be undone.`}
-          </DialogDescription>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
 
         {error && (
@@ -113,4 +111,4 @@ function DeleteVehicleDialog({
   )
 }
 
-export default DeleteVehicleDialog
+export default ConfirmDeleteDialog

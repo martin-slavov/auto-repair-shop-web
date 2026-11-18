@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ApiError } from '../../api/client'
 import { createVehicle, updateVehicle } from '../../api/vehicles'
+import { todayIsoDate } from '../../lib/date'
 import type { Vehicle } from '../../types/vehicle'
 
 const MIN_YEAR = 1886
@@ -32,13 +33,6 @@ function toFormValues(vehicle: Vehicle | null): FormValues {
     year: vehicle ? String(vehicle.year) : '',
     firstRegistrationDate: vehicle?.firstRegistrationDate ?? '',
   }
-}
-
-function todayIsoDate(): string {
-  const now = new Date()
-  const month = String(now.getMonth() + 1).padStart(2, '0')
-  const day = String(now.getDate()).padStart(2, '0')
-  return `${now.getFullYear()}-${month}-${day}`
 }
 
 interface FieldProps extends ComponentProps<typeof Input> {

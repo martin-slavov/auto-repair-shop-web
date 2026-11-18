@@ -112,3 +112,20 @@
     @apply text-2xl;
     }
 }
+
+@media print {
+  @page {
+    margin: 15mm;
+  }
+  body:has(.invoice-print) header,
+  body:has(.invoice-print) footer {
+    display: none;
+  }
+  body:has(.invoice-print) main {
+    background: none;
+  }
+  .invoice-print {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
