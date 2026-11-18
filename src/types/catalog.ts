@@ -1,3 +1,5 @@
+import type { PageQuery } from './api'
+
 // CatalogItemResponseDTO
 export interface CatalogItem {
   id: number
@@ -7,4 +9,12 @@ export interface CatalogItem {
   active: boolean
   createdAt: string
   estimatedHours: number
+}
+
+export type CatalogSortField = 'name' | 'price' | 'estimatedHours' | 'createdAt'
+
+export type CatalogItemQuery = PageQuery<CatalogSortField> & {
+  name?: string
+  minPrice?: string | number
+  maxPrice?: string | number
 }

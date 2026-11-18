@@ -60,8 +60,22 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return (await response.json()) as T
 }
 
-export function apiGet<T>(path: string): Promise<T> {
-  return request<T>(path)
+export type QueryValue = string | number | boolean | null | undefined
+
+export function buildQueryString(params: Record<string, QueryValue>): string {
+  const searchParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value === null || value === undefined) continue
+    const text = String(value).trim()
+    if (text === '') continue
+    searchParams.set(key, text)
+  }
+  const query = searchParams.toString()
+  return query ? `?${query}` : ''
+}
+
+export function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> {
+  return request<T>(path, { signal })
 }
 
 export function apiPost<T>(path: string, body: unknown): Promise<T> {
