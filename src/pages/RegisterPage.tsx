@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { register } from '../api/auth'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/useAuth'
+import { validatePasswordPair } from '../lib/password'
 
 function RegisterPage() {
   const { user } = useAuth()
@@ -30,14 +31,7 @@ function RegisterPage() {
     event.preventDefault()
     setError(null)
 
-    const formErrors: Record<string, string> = {}
-    if (new TextEncoder().encode(password).length > 72) {
-      formErrors.password =
-        'Password cannot be more than 72 bytes (some characters, like emoji, count as more than one).'
-    }
-    if (password !== confirmPassword) {
-      formErrors.confirmPassword = 'Passwords do not match.'
-    }
+    const formErrors = validatePasswordPair(password, confirmPassword)
     setFieldErrors(formErrors)
     if (Object.keys(formErrors).length > 0) {
       return
