@@ -52,7 +52,9 @@ function VisitDetailsDialog({
             </DialogHeader>
 
             <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto">
-              <VisitStatusStepper status={visit.status} />
+              <div className="px-1 pt-2">
+                <VisitStatusStepper status={visit.status} />
+              </div>
 
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
                 <dt className="text-muted-foreground">Scheduled</dt>
