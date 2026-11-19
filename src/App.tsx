@@ -39,7 +39,7 @@ function App() {
             <Route path="visits" element={<VisitsPage />} />
           </Route>
 
-          <Route element={<RequireRole allowedRoles={['CUSTOMER']} />}>
+          <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN']} />}>
             <Route path="invoices" element={<InvoicesPage />} />
             <Route path="invoices/:id" element={<InvoiceViewPage />} />
           </Route>

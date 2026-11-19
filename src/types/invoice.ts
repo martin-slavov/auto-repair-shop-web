@@ -12,6 +12,21 @@ export interface Invoice {
   paid: boolean
 }
 
+// InvoicePartLineDTO
+export interface InvoicePartLine {
+  partName: string
+  quantity: number
+  unitPrice: number
+  lineTotal: number
+}
+
+// InvoiceDetailDTO
+export interface InvoiceDetail extends Invoice {
+  laborHours?: number
+  laborRate?: number
+  partLines?: InvoicePartLine[]
+}
+
 export type InvoiceSortField = 'invoiceNumber' | 'totalPrice' | 'issuedDate' | 'paid'
 
 export type PaidFilter = 'true' | 'false' | ''

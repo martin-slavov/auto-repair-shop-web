@@ -61,7 +61,7 @@ function Layout() {
           Visits
         </NavLink>
       )}
-      {isCustomer && (
+      {(isCustomer || isAdmin) && (
         <NavLink to="/invoices" className={navLinkClass} onClick={closeMenu}>
           Invoices
         </NavLink>

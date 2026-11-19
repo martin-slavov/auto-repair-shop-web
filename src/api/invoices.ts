@@ -1,6 +1,6 @@
 import type { PageResponse } from '../types/api'
-import type { Invoice, InvoiceQuery } from '../types/invoice'
-import { apiGet, buildQueryString } from './client'
+import type { Invoice, InvoiceDetail, InvoiceQuery } from '../types/invoice'
+import { apiDelete, apiGet, apiPatch, buildQueryString } from './client'
 
 export function getInvoices(
   query: InvoiceQuery = {},
@@ -9,6 +9,14 @@ export function getInvoices(
   return apiGet<PageResponse<Invoice>>('/api/invoices' + buildQueryString(query), signal)
 }
 
-export function getInvoice(id: number, signal?: AbortSignal): Promise<Invoice> {
-  return apiGet<Invoice>(`/api/invoices/${id}`, signal)
+export function getInvoice(id: number, signal?: AbortSignal): Promise<InvoiceDetail> {
+  return apiGet<InvoiceDetail>(`/api/invoices/${id}`, signal)
+}
+
+export function payInvoice(id: number): Promise<Invoice> {
+  return apiPatch<Invoice>(`/api/invoices/${id}/pay`)
+}
+
+export function deleteInvoice(id: number): Promise<void> {
+  return apiDelete(`/api/invoices/${id}`)
 }

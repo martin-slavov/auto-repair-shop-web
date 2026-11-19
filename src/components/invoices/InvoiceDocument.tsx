@@ -1,13 +1,32 @@
+import { cn } from '@/lib/utils'
 import { formatDateTime } from '../../lib/date'
 import { formatMoney } from '../../lib/money'
-import type { Invoice } from '../../types/invoice'
+import type { InvoiceDetail } from '../../types/invoice'
 import InvoicePaidBadge from './InvoicePaidBadge'
 
-function InvoiceDocument({ invoice }: { invoice: Invoice }) {
-  const lines = [
-    { label: 'Parts', amount: invoice.partsPrice },
-    { label: 'Labour', amount: invoice.laborPrice },
-  ]
+const NUMBER_HEAD_CLASS = 'py-2 pl-4 text-right font-medium whitespace-nowrap'
+const NUMBER_CELL_CLASS = 'py-3 pl-4 text-right align-top whitespace-nowrap tabular-nums'
+const DETAIL_COLUMN_CLASS = 'hidden sm:table-cell print:table-cell'
+
+function isNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value)
+}
+
+function EmptyDetailCells() {
+  return (
+    <>
+      <td className={DETAIL_COLUMN_CLASS} />
+      <td className={DETAIL_COLUMN_CLASS} />
+    </>
+  )
+}
+
+function InvoiceDocument({ invoice }: { invoice: InvoiceDetail }) {
+  const partLines = Array.isArray(invoice.partLines) ? invoice.partLines : null
+  const laborDetail =
+    isNumber(invoice.laborHours) && isNumber(invoice.laborRate)
+      ? `${invoice.laborHours.toFixed(2)} h × ${formatMoney(invoice.laborRate)}`
+      : null
 
   return (
     <article
@@ -54,28 +73,86 @@ function InvoiceDocument({ invoice }: { invoice: Invoice }) {
       <table className="w-full border-collapse">
         <thead>
           <tr className="border-b text-left text-xs tracking-wide text-muted-foreground uppercase">
-            <th scope="col" className="py-2 font-medium">
+            <th scope="col" className="w-full py-2 font-medium">
               Description
             </th>
-            <th scope="col" className="py-2 text-right font-medium">
+            <th scope="col" className={cn(NUMBER_HEAD_CLASS, DETAIL_COLUMN_CLASS)}>
+              Qty
+            </th>
+            <th scope="col" className={cn(NUMBER_HEAD_CLASS, DETAIL_COLUMN_CLASS)}>
+              Unit price
+            </th>
+            <th scope="col" className={NUMBER_HEAD_CLASS}>
               Amount
             </th>
           </tr>
         </thead>
         <tbody>
-          {lines.map((line) => (
-            <tr key={line.label} className="border-b">
-              <td className="py-3">{line.label}</td>
-              <td className="py-3 text-right tabular-nums">{formatMoney(line.amount)}</td>
+          {partLines ? (
+            <>
+              <tr className="break-inside-avoid">
+                <th
+                  scope="rowgroup"
+                  className="pt-4 pb-1 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase"
+                >
+                  Parts
+                </th>
+                <EmptyDetailCells />
+                <td />
+              </tr>
+              {partLines.length === 0 ? (
+                <tr className="break-inside-avoid border-b">
+                  <td className="py-3 text-muted-foreground">No parts used</td>
+                  <EmptyDetailCells />
+                  <td />
+                </tr>
+              ) : (
+                partLines.map((line, index) => (
+                  <tr key={index} className="break-inside-avoid border-b">
+                    <td className="py-3 align-top wrap-anywhere">
+                      {line.partName}
+                      <span className="mt-0.5 block text-muted-foreground tabular-nums sm:hidden print:hidden">
+                        {line.quantity} × {formatMoney(line.unitPrice)}
+                      </span>
+                    </td>
+                    <td className={cn(NUMBER_CELL_CLASS, DETAIL_COLUMN_CLASS)}>{line.quantity}</td>
+                    <td className={cn(NUMBER_CELL_CLASS, DETAIL_COLUMN_CLASS)}>
+                      {formatMoney(line.unitPrice)}
+                    </td>
+                    <td className={NUMBER_CELL_CLASS}>{formatMoney(line.lineTotal)}</td>
+                  </tr>
+                ))
+              )}
+            </>
+          ) : (
+            <tr className="break-inside-avoid border-b">
+              <td className="py-3 align-top">Parts</td>
+              <EmptyDetailCells />
+              <td className={NUMBER_CELL_CLASS}>{formatMoney(invoice.partsPrice)}</td>
             </tr>
-          ))}
+          )}
+          <tr className="break-inside-avoid border-b">
+            <td className="py-3 align-top">
+              Labour
+              {laborDetail && (
+                <span className="mt-0.5 block text-muted-foreground tabular-nums">
+                  {laborDetail}
+                </span>
+              )}
+            </td>
+            <EmptyDetailCells />
+            <td className={NUMBER_CELL_CLASS}>{formatMoney(invoice.laborPrice)}</td>
+          </tr>
         </tbody>
         <tfoot>
-          <tr className="text-base font-bold">
+          <tr className="break-inside-avoid text-base font-bold">
             <th scope="row" className="pt-4 text-left">
               Total
             </th>
-            <td className="pt-4 text-right tabular-nums">{formatMoney(invoice.totalPrice)}</td>
+            <EmptyDetailCells />
+            <td className="pt-4 pl-4 text-right whitespace-nowrap tabular-nums">
+              {formatMoney(invoice.totalPrice)}
+            </td>
           </tr>
         </tfoot>
       </table>

@@ -4,11 +4,11 @@ import { ArrowLeft, Printer } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import InvoiceDocument from '@/components/invoices/InvoiceDocument'
 import { getInvoice } from '../api/invoices'
-import type { Invoice } from '../types/invoice'
+import type { InvoiceDetail } from '../types/invoice'
 
 interface LoadResult {
   id: number
-  invoice: Invoice | null
+  invoice: InvoiceDetail | null
   error: string | null
 }
 
