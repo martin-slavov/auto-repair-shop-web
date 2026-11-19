@@ -5,13 +5,6 @@ export function todayIsoDate(): string {
   return `${now.getFullYear()}-${month}-${day}`
 }
 
-export function nowLocalDateTimeMinutes(): string {
-  const now = new Date()
-  const hours = String(now.getHours()).padStart(2, '0')
-  const minutes = String(now.getMinutes()).padStart(2, '0')
-  return `${todayIsoDate()}T${hours}:${minutes}`
-}
-
 export function formatDateTime(value: string): string {
   return value.slice(0, 16).replace('T', ' ')
 }

@@ -8,22 +8,30 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import FormField from '@/components/FormField'
+import SlotPicker from '@/components/visits/SlotPicker'
 import { fieldErrorProps } from '@/lib/fieldErrorProps'
 import { ApiError } from '../../api/client'
 import { approveServiceRequest } from '../../api/serviceRequests'
-import { nowLocalDateTimeMinutes } from '../../lib/date'
+import { todayIsoDate } from '../../lib/date'
 import { SELECT_CLASS } from '../../lib/fieldClasses'
 import type { ServiceRequest } from '../../types/serviceRequest'
 import type { UserAdmin } from '../../types/user'
 
 interface FormValues {
   mechanicId: string
-  scheduledDate: string
+  date: string
+  start: string | null
 }
 
-const initialValues: FormValues = { mechanicId: '', scheduledDate: '' }
+function initialValues(request: ServiceRequest | null): FormValues {
+  const preferred = request?.preferredDate?.slice(0, 10) ?? ''
+  return {
+    mechanicId: '',
+    date: preferred !== '' && preferred >= todayIsoDate() ? preferred : '',
+    start: null,
+  }
+}
 
 interface ApproveServiceRequestDialogProps {
   open: boolean
@@ -44,7 +52,8 @@ function ApproveServiceRequestDialog({
   onApproved,
   onRefreshNeeded,
 }: ApproveServiceRequestDialogProps) {
-  const [values, setValues] = useState<FormValues>(initialValues)
+  const [values, setValues] = useState<FormValues>(() => initialValues(request))
+  const [reloadKey, setReloadKey] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -54,7 +63,7 @@ function ApproveServiceRequestDialog({
   if (open !== wasOpen) {
     setWasOpen(open)
     if (open) {
-      setValues(initialValues)
+      setValues(initialValues(request))
       setSubmitting(false)
       setError(null)
       setFieldErrors({})
@@ -76,7 +85,7 @@ function ApproveServiceRequestDialog({
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!request) return
+    if (!request || values.start === null) return
     setError(null)
     setFieldErrors({})
     setSubmitting(true)
@@ -84,7 +93,7 @@ function ApproveServiceRequestDialog({
     try {
       const approved = await approveServiceRequest(request.id, {
         mechanicId: Number(values.mechanicId),
-        scheduledDate: `${values.scheduledDate}:00`,
+        scheduledDate: values.start,
       })
       setSubmitting(false)
       onApproved(approved)
@@ -95,6 +104,10 @@ function ApproveServiceRequestDialog({
         setError(hasFieldErrors ? null : err.message)
         if (err.status === 404) {
           setNotFound(true)
+        }
+        if (err.status === 400 || err.status === 409) {
+          setValue('start', null)
+          setReloadKey((key) => key + 1)
         }
       } else {
         setError(err instanceof Error ? err.message : 'Something went wrong')
@@ -155,7 +168,9 @@ function ApproveServiceRequestDialog({
             id="approve-mechanic"
             required
             value={values.mechanicId}
-            onChange={(event) => setValue('mechanicId', event.target.value)}
+            onChange={(event) =>
+              setValues((prev) => ({ ...prev, mechanicId: event.target.value, start: null }))
+            }
             className={SELECT_CLASS}
             {...fieldErrorProps('approve-mechanic', fieldErrors.mechanicId)}
           >
@@ -170,25 +185,20 @@ function ApproveServiceRequestDialog({
           </select>
         </FormField>
 
-        <FormField
-          id="approve-scheduled-date"
-          label="Scheduled date"
+        <SlotPicker
+          id="approve-slot"
+          mechanicId={values.mechanicId === '' ? null : Number(values.mechanicId)}
+          date={values.date}
+          onDateChange={(date) => setValue('date', date)}
+          value={values.start}
+          onChange={(start) => setValue('start', start)}
+          reloadKey={reloadKey}
           error={fieldErrors.scheduledDate}
-        >
-          <Input
-            id="approve-scheduled-date"
-            type="datetime-local"
-            required
-            min={nowLocalDateTimeMinutes()}
-            value={values.scheduledDate}
-            onChange={(event) => setValue('scheduledDate', event.target.value)}
-            {...fieldErrorProps('approve-scheduled-date', fieldErrors.scheduledDate)}
-          />
-        </FormField>
+        />
 
         <DialogFooter>
           {cancelButton}
-          <Button type="submit" disabled={submitting || notFound}>
+          <Button type="submit" disabled={submitting || notFound || values.start === null}>
             {submitting ? 'Approving…' : 'Approve'}
           </Button>
         </DialogFooter>

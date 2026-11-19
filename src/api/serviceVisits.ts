@@ -1,6 +1,7 @@
 import type { PageResponse } from '../types/api'
 import type { Invoice } from '../types/invoice'
 import type {
+  AvailableSlot,
   CompleteVisitBody,
   ServiceVisit,
   ServiceVisitQuery,
@@ -16,6 +17,18 @@ export function getServiceVisits(
   signal?: AbortSignal,
 ): Promise<PageResponse<ServiceVisit>> {
   return apiGet<PageResponse<ServiceVisit>>('/api/service-visits' + buildQueryString(query), signal)
+}
+
+export function getAvailableSlots(
+  mechanicId: number,
+  date: string,
+  excludeVisitId?: number,
+  signal?: AbortSignal,
+): Promise<AvailableSlot[]> {
+  return apiGet<AvailableSlot[]>(
+    '/api/service-visits/available-slots' + buildQueryString({ mechanicId, date, excludeVisitId }),
+    signal,
+  )
 }
 
 export function updateServiceVisit(id: number, body: ServiceVisitUpdate): Promise<ServiceVisit> {

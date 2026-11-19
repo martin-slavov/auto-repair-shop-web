@@ -8,13 +8,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import FormField from '@/components/FormField'
-import { fieldErrorProps } from '@/lib/fieldErrorProps'
+import SlotPicker from '@/components/visits/SlotPicker'
 import { ApiError } from '../../api/client'
 import { updateServiceVisit } from '../../api/serviceVisits'
-import { nowLocalDateTimeMinutes } from '../../lib/date'
+import { formatDateTime, todayIsoDate } from '../../lib/date'
 import type { ServiceVisit } from '../../types/serviceVisit'
+
+function initialDate(visit: ServiceVisit | null): string {
+  if (!visit) return ''
+  const day = visit.scheduledDate.slice(0, 10)
+  const today = todayIsoDate()
+  return day < today ? today : day
+}
 
 interface RescheduleVisitDialogProps {
   open: boolean
@@ -31,7 +36,9 @@ function RescheduleVisitDialog({
   onSaved,
   onRefreshNeeded,
 }: RescheduleVisitDialogProps) {
-  const [scheduledDate, setScheduledDate] = useState('')
+  const [date, setDate] = useState(() => initialDate(visit))
+  const [start, setStart] = useState<string | null>(null)
+  const [reloadKey, setReloadKey] = useState(0)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -41,13 +48,17 @@ function RescheduleVisitDialog({
   if (open !== wasOpen) {
     setWasOpen(open)
     if (open) {
-      setScheduledDate(visit ? visit.scheduledDate.slice(0, 16) : '')
+      setDate(initialDate(visit))
+      setStart(null)
       setSubmitting(false)
       setError(null)
       setFieldErrors({})
       setNotFound(false)
     }
   }
+
+  const leadMechanicId =
+    visit?.mechanics.find((mechanic) => mechanic.roleInVisit === 'LEAD')?.mechanicId ?? null
 
   function handleOpenChange(nextOpen: boolean) {
     if (submitting) return
@@ -59,13 +70,13 @@ function RescheduleVisitDialog({
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!visit) return
+    if (!visit || start === null) return
     setError(null)
     setFieldErrors({})
     setSubmitting(true)
 
     try {
-      const saved = await updateServiceVisit(visit.id, { scheduledDate: `${scheduledDate}:00` })
+      const saved = await updateServiceVisit(visit.id, { scheduledDate: start })
       setSubmitting(false)
       onSaved(saved)
     } catch (err: unknown) {
@@ -76,6 +87,10 @@ function RescheduleVisitDialog({
         if (err.status === 404) {
           setNotFound(true)
         }
+        if (err.status === 400 || err.status === 409) {
+          setStart(null)
+          setReloadKey((key) => key + 1)
+        }
       } else {
         setError(err instanceof Error ? err.message : 'Something went wrong')
       }
@@ -85,11 +100,12 @@ function RescheduleVisitDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Reschedule visit</DialogTitle>
           <DialogDescription>
-            {visit && `Choose a new date and time for the visit for ${visit.licensePlate}.`}
+            {visit &&
+              `Choose a new day and time for the visit for ${visit.licensePlate}. Currently scheduled: ${formatDateTime(visit.scheduledDate)}.`}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -102,21 +118,26 @@ function RescheduleVisitDialog({
             </p>
           )}
 
-          <FormField
-            id="reschedule-scheduled-date"
-            label="Scheduled date"
-            error={fieldErrors.scheduledDate}
-          >
-            <Input
-              id="reschedule-scheduled-date"
-              type="datetime-local"
-              required
-              min={nowLocalDateTimeMinutes()}
-              value={scheduledDate}
-              onChange={(event) => setScheduledDate(event.target.value)}
-              {...fieldErrorProps('reschedule-scheduled-date', fieldErrors.scheduledDate)}
+          {visit && leadMechanicId === null ? (
+            <p
+              role="alert"
+              className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
+            >
+              The lead mechanic of this visit is unknown, so the free times cannot be loaded.
+            </p>
+          ) : (
+            <SlotPicker
+              id="reschedule-slot"
+              mechanicId={leadMechanicId}
+              date={date}
+              onDateChange={setDate}
+              value={start}
+              onChange={setStart}
+              excludeVisitId={visit?.id}
+              reloadKey={reloadKey}
+              error={fieldErrors.scheduledDate}
             />
-          </FormField>
+          )}
 
           <DialogFooter>
             <Button
@@ -127,7 +148,7 @@ function RescheduleVisitDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting || notFound}>
+            <Button type="submit" disabled={submitting || notFound || start === null}>
               {submitting ? 'Saving…' : 'Save'}
             </Button>
           </DialogFooter>
