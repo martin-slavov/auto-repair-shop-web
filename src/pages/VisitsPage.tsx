@@ -7,6 +7,7 @@ import TablePagination from '@/components/data-table/TablePagination'
 import DataCardList from '@/components/data-table/DataCardList'
 import SortControl, { type SortOption } from '@/components/data-table/SortControl'
 import AdminVisitsView from '@/components/visits/AdminVisitsView'
+import MechanicVisitsView from '@/components/visits/MechanicVisitsView'
 import VisitCard from '@/components/visits/VisitCard'
 import VisitDetailsDialog from '@/components/visits/VisitDetailsDialog'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
@@ -53,7 +54,9 @@ const fetchVisitPage: FetchPage<ServiceVisit, ServiceVisitSortField, VisitFilter
 
 function VisitsPage() {
   const { user } = useAuth()
-  return user?.role === 'ADMIN' ? <AdminVisitsView /> : <CustomerVisitsView />
+  if (user?.role === 'ADMIN') return <AdminVisitsView />
+  if (user?.role === 'MECHANIC') return <MechanicVisitsView />
+  return <CustomerVisitsView />
 }
 
 function CustomerVisitsView() {

@@ -24,6 +24,7 @@ function Layout() {
   const canSeeVehicles = user?.role === 'CUSTOMER' || user?.role === 'ADMIN'
   const isAdmin = user?.role === 'ADMIN'
   const isCustomer = user?.role === 'CUSTOMER'
+  const isMechanic = user?.role === 'MECHANIC'
 
   function closeMenu() {
     setMenuOpen(false)
@@ -54,6 +55,11 @@ function Layout() {
             Visits
           </NavLink>
         </>
+      )}
+      {isMechanic && (
+        <NavLink to="/visits" className={navLinkClass} onClick={closeMenu}>
+          Visits
+        </NavLink>
       )}
       {isCustomer && (
         <NavLink to="/invoices" className={navLinkClass} onClick={closeMenu}>

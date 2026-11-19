@@ -52,6 +52,36 @@ export function sortMechanicsLeadFirst(mechanics: MechanicAssignment[]): Mechani
   )
 }
 
+export function currentMechanicRole(visit: ServiceVisit): MechanicRole | null {
+  return visit.mechanics.length === 1 ? visit.mechanics[0].roleInVisit : null
+}
+
+// CompleteVisitDTO
+export interface CompleteVisitBody {
+  technicalNotes: string
+  hoursWorked: number
+}
+
+// VisitPartResponseDTO
+export interface VisitPart {
+  id: number
+  partName: string
+  quantity: number
+  priceAtTimeOfUse: number
+  addedAt: string
+}
+
+// VisitPartCreateDTO
+export interface VisitPartCreate {
+  partId: number
+  quantity: number
+}
+
+// VisitPartUpdateDTO
+export interface VisitPartUpdate {
+  quantity: number
+}
+
 export type ServiceVisitSortField = 'scheduledDate' | 'completedDate' | 'status'
 
 export type ServiceVisitQuery = PageQuery<ServiceVisitSortField> & {

@@ -16,7 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { useVisitParts } from '@/hooks/useVisitParts'
 import { formatDateTime } from '../../lib/date'
+import { formatMoney } from '../../lib/money'
 import {
   MECHANIC_ROLE_LABELS,
   SERVICE_VISIT_STATUS_LABELS,
@@ -28,7 +30,7 @@ interface VisitDetailsDialogProps {
   open: boolean
   visit: ServiceVisit | null
   onOpenChange: (open: boolean) => void
-  audience?: 'customer' | 'admin'
+  audience?: 'customer' | 'admin' | 'mechanic'
 }
 
 function VisitDetailsDialog({
@@ -37,6 +39,9 @@ function VisitDetailsDialog({
   onOpenChange,
   audience = 'customer',
 }: VisitDetailsDialogProps) {
+  const showParts = audience === 'mechanic'
+  const { parts, error: partsError } = useVisitParts(open && showParts && visit ? visit.id : null)
+  const partsTotal = parts?.reduce((sum, line) => sum + line.priceAtTimeOfUse, 0) ?? 0
   const totalHours = visit?.mechanics.reduce((sum, mechanic) => sum + mechanic.hoursWorked, 0) ?? 0
 
   return (
@@ -111,6 +116,50 @@ function VisitDetailsDialog({
                   <p className="text-muted-foreground">No notes yet.</p>
                 )}
               </section>
+
+              {showParts && (
+                <section className="flex flex-col gap-2">
+                  <h2 className="text-lg">Parts</h2>
+                  {partsError ? (
+                    <p className="text-destructive">Could not load parts: {partsError}</p>
+                  ) : parts === null ? (
+                    <p className="text-muted-foreground">Loading parts…</p>
+                  ) : parts.length === 0 ? (
+                    <p className="text-muted-foreground">No parts used.</p>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="hover:bg-transparent">
+                          <TableHead>Part</TableHead>
+                          <TableHead className="text-right">Quantity</TableHead>
+                          <TableHead className="text-right">Line total</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {parts.map((line) => (
+                          <TableRow key={line.id}>
+                            <TableCell className="w-full whitespace-normal font-medium">
+                              <div className="wrap-anywhere">{line.partName}</div>
+                            </TableCell>
+                            <TableCell className="text-right tabular-nums">{line.quantity}</TableCell>
+                            <TableCell className="text-right tabular-nums">
+                              {formatMoney(line.priceAtTimeOfUse)}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                      <TableFooter>
+                        <TableRow>
+                          <TableCell colSpan={2}>Parts total</TableCell>
+                          <TableCell className="text-right tabular-nums">
+                            {formatMoney(partsTotal)}
+                          </TableCell>
+                        </TableRow>
+                      </TableFooter>
+                    </Table>
+                  )}
+                </section>
+              )}
 
               {audience === 'customer' && (
                 <p className="text-muted-foreground">

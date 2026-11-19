@@ -1,7 +1,6 @@
 import { CalendarClock, Info, Receipt, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
-import { formatDateTime } from '../../lib/date'
 import type { SortState } from '../../types/api'
 import {
   MECHANIC_ROLE_LABELS,
@@ -9,7 +8,12 @@ import {
   type ServiceVisit,
   type ServiceVisitSortField,
 } from '../../types/serviceVisit'
-import VisitStatusBadge from './VisitStatusBadge'
+import {
+  completedDateColumn,
+  licensePlateColumn,
+  scheduledDateColumn,
+  statusColumn,
+} from './visitColumns'
 
 function mechanicsText(visit: ServiceVisit): string {
   return sortMechanicsLeadFirst(visit.mechanics)
@@ -43,25 +47,9 @@ function VisitTable({
   onInvoice,
 }: VisitTableProps) {
   const columns: DataTableColumn<ServiceVisit, ServiceVisitSortField>[] = [
-    {
-      id: 'scheduledDate',
-      header: 'Scheduled',
-      sortField: 'scheduledDate',
-      className: 'tabular-nums',
-      cell: (visit) => formatDateTime(visit.scheduledDate),
-    },
-    {
-      id: 'licensePlate',
-      header: 'License plate',
-      className: 'font-medium',
-      cell: (visit) => visit.licensePlate,
-    },
-    {
-      id: 'status',
-      header: 'Status',
-      sortField: 'status',
-      cell: (visit) => <VisitStatusBadge status={visit.status} />,
-    },
+    scheduledDateColumn,
+    licensePlateColumn,
+    statusColumn,
     {
       id: 'mechanics',
       header: 'Mechanics',
@@ -76,13 +64,7 @@ function VisitTable({
         )
       },
     },
-    {
-      id: 'completedDate',
-      header: 'Completed',
-      sortField: 'completedDate',
-      className: 'tabular-nums',
-      cell: (visit) => (visit.completedDate ? formatDateTime(visit.completedDate) : '—'),
-    },
+    completedDateColumn,
     {
       id: 'actions',
       header: 'Actions',
