@@ -39,5 +39,5 @@ export function decodeToken(token: string): AuthUser | null {
     return null
   }
 
-  return { username: sub, role }
+  return { username: sub, role, expiresAt: exp * 1000 }
 }

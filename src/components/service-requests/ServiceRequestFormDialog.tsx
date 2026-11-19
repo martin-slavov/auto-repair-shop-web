@@ -146,7 +146,7 @@ function ServiceRequestFormDialog({
           role="alert"
           className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive"
         >
-          Could not load your vehicles: {vehiclesError}
+          Could not load vehicles: {vehiclesError}
         </p>
         <DialogFooter>{cancelButton}</DialogFooter>
       </>

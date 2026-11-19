@@ -5,9 +5,9 @@ export type StatusTone = 'neutral' | 'success' | 'destructive' | 'primary'
 
 const TONE_CLASSES: Record<StatusTone, string> = {
   neutral: 'border-border bg-muted text-foreground',
-  success: 'border-success/30 bg-success/10 text-success',
+  success: 'border-success/30 bg-success/10 text-success-text',
   destructive: 'border-destructive/30 bg-destructive/10 text-destructive',
-  primary: 'border-primary/30 bg-primary/10 text-primary',
+  primary: 'border-primary/30 bg-primary/10 text-primary-text',
 }
 
 interface StatusBadgeProps {

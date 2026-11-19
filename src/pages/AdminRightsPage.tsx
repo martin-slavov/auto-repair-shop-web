@@ -9,6 +9,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { RIGHTS, RIGHTS_ROLES, type Access } from '@/lib/rights'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 function AccessCell({ access }: { access: Access }) {
   if (access === false) {
@@ -36,6 +37,7 @@ function AccessCell({ access }: { access: Access }) {
 }
 
 function AdminRightsPage() {
+  useDocumentTitle('Rights')
   return (
     <>
       <h1>Rights</h1>

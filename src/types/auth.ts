@@ -3,7 +3,10 @@ export type Role = 'CUSTOMER' | 'MECHANIC' | 'ADMIN'
 export interface AuthUser {
   username: string
   role: Role
+  expiresAt: number
 }
+
+export type LogoutReason = 'manual' | 'expired'
 
 export interface LoginRequest {
   username: string

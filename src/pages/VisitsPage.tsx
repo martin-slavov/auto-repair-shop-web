@@ -22,6 +22,7 @@ import {
   type ServiceVisitSortField,
   type ServiceVisitStatus,
 } from '../types/serviceVisit'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 type VisitFilters = {
   licensePlate: string
@@ -53,6 +54,7 @@ const fetchVisitPage: FetchPage<ServiceVisit, ServiceVisitSortField, VisitFilter
   )
 
 function VisitsPage() {
+  useDocumentTitle('Visits')
   const { user } = useAuth()
   if (user?.role === 'ADMIN') return <AdminVisitsView />
   if (user?.role === 'MECHANIC') return <MechanicVisitsView />
@@ -92,6 +94,7 @@ function CustomerVisitsView() {
               <Label htmlFor="visits-license-plate">License plate</Label>
               <Input
                 id="visits-license-plate"
+                maxLength={8}
                 type="search"
                 placeholder="e.g. CA1234"
                 value={table.filters.licensePlate}
@@ -141,7 +144,7 @@ function CustomerVisitsView() {
               <p>
                 {table.hasActiveFilters
                   ? 'No visits match your filters.'
-                  : 'You have no service visits yet.'}
+                  : 'No visits yet.'}
               </p>
             }
           />

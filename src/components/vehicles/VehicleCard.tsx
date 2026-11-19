@@ -1,6 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatDate } from '../../lib/date'
 import type { Vehicle } from '../../types/vehicle'
 
 interface VehicleCardProps {
@@ -25,7 +26,9 @@ function VehicleCard({ vehicle, onEdit, onDelete }: VehicleCardProps) {
           <dt className="text-muted-foreground">Year</dt>
           <dd className="tabular-nums">{vehicle.year}</dd>
           <dt className="text-muted-foreground">First registration</dt>
-          <dd className="tabular-nums">{vehicle.firstRegistrationDate ?? '—'}</dd>
+          <dd className="tabular-nums">
+            {vehicle.firstRegistrationDate ? formatDate(vehicle.firstRegistrationDate) : '—'}
+          </dd>
         </dl>
       </CardContent>
       <CardFooter className="mt-auto justify-end gap-2">

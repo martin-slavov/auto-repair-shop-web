@@ -6,8 +6,10 @@ import DataTable, { type DataTableColumn } from '@/components/data-table/DataTab
 import TablePagination from '@/components/data-table/TablePagination'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
 import { getCatalogItems } from '../api/catalog'
+import { formatMoney } from '../lib/money'
 import type { SortState } from '../types/api'
 import type { CatalogItem, CatalogSortField } from '../types/catalog'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 type CatalogFilters = {
   name: string
@@ -54,7 +56,7 @@ const columns: DataTableColumn<CatalogItem, CatalogSortField>[] = [
     sortField: 'price',
     align: 'right',
     className: 'tabular-nums',
-    cell: (item) => item.basePrice.toFixed(2),
+    cell: (item) => formatMoney(item.basePrice),
   },
   {
     id: 'estimatedHours',
@@ -67,6 +69,7 @@ const columns: DataTableColumn<CatalogItem, CatalogSortField>[] = [
 ]
 
 function CatalogPage() {
+  useDocumentTitle('Services')
   const table = useDataTable({
     fetchPage: fetchCatalogPage,
     initialSort,
@@ -91,6 +94,7 @@ function CatalogPage() {
               <Label htmlFor="catalog-name">Name</Label>
               <Input
                 id="catalog-name"
+                maxLength={100}
                 type="search"
                 placeholder="e.g. oil change"
                 value={table.filters.name}
@@ -140,7 +144,7 @@ function CatalogPage() {
             loading={table.loading}
             error={table.error && `Could not load services: ${table.error}`}
             emptyMessage={
-              table.hasActiveFilters ? 'No services match your search.' : 'No services available.'
+              table.hasActiveFilters ? 'No services match your filters.' : 'No services yet.'
             }
           />
         </CardContent>

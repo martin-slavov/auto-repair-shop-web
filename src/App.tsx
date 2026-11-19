@@ -17,7 +17,6 @@ import AdminCatalogPage from './pages/AdminCatalogPage'
 import AdminPartsPage from './pages/AdminPartsPage'
 import AdminRightsPage from './pages/AdminRightsPage'
 import NotFoundPage from './pages/NotFoundPage'
-import UiPreviewPage from './pages/UiPreviewPage'
 
 function App() {
   return (
@@ -29,7 +28,6 @@ function App() {
           <Route path="services" element={<CatalogPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
-          <Route path="ui-preview" element={<UiPreviewPage />} />
 
           <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN']} />}>
             <Route path="vehicles" element={<VehiclesPage />} />

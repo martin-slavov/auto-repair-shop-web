@@ -1,7 +1,7 @@
 import { Check, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
-import { formatDateTime } from '../../lib/date'
+import { formatDate, formatDateTime } from '../../lib/date'
 import type { SortState } from '../../types/api'
 import {
   SERVICE_REQUEST_TYPE_LABELS,
@@ -66,7 +66,7 @@ function ServiceRequestTable({
       header: 'Preferred date',
       sortField: 'preferredDate',
       className: 'tabular-nums',
-      cell: (request) => request.preferredDate ?? '—',
+      cell: (request) => (request.preferredDate ? formatDate(request.preferredDate) : '—'),
     },
     {
       id: 'status',

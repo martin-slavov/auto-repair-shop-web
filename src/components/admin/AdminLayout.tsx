@@ -10,7 +10,7 @@ const adminLinks = [
 
 function subNavLinkClass({ isActive }: { isActive: boolean }) {
   return cn(
-    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
+    'rounded-md px-3 py-1.5 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
     isActive
       ? 'bg-background text-foreground shadow-sm'
       : 'text-muted-foreground hover:text-foreground',

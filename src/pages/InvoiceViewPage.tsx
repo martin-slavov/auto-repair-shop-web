@@ -5,6 +5,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import InvoiceDocument from '@/components/invoices/InvoiceDocument'
 import { getInvoice } from '../api/invoices'
 import type { InvoiceDetail } from '../types/invoice'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 interface LoadResult {
   id: number
@@ -33,6 +34,7 @@ function InvoiceViewPage() {
   }, [invoiceId, validId])
 
   const current = result?.id === invoiceId ? result : null
+  useDocumentTitle(current?.invoice ? `Invoice ${current.invoice.invoiceNumber}` : 'Invoice')
   const loading = validId && current === null
   const error = validId ? current?.error : 'Invoice not found.'
   const invoice = current?.invoice ?? null

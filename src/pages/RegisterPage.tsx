@@ -8,8 +8,10 @@ import { register } from '../api/auth'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/useAuth'
 import { validatePasswordPair } from '../lib/password'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 function RegisterPage() {
+  useDocumentTitle('Register')
   const { user } = useAuth()
   const navigate = useNavigate()
 

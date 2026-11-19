@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { formatMoney } from '@/lib/money'
 import type { CatalogItem } from '@/types/catalog'
 
 const gridClass = 'grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'
@@ -48,7 +49,7 @@ function ServicesPreview() {
   } else if (failed) {
     content = <p className="text-muted-foreground">Services could not be loaded right now.</p>
   } else if (items.length === 0) {
-    content = <p className="text-muted-foreground">No services available yet.</p>
+    content = <p className="text-muted-foreground">No services yet.</p>
   } else {
     content = (
       <div className={gridClass}>
@@ -61,7 +62,7 @@ function ServicesPreview() {
             <CardFooter className="mt-auto justify-between text-sm">
               <span>
                 <span className="text-muted-foreground">Price </span>
-                <span className="font-semibold tabular-nums">{item.basePrice.toFixed(2)}</span>
+                <span className="font-semibold tabular-nums">{formatMoney(item.basePrice)}</span>
               </span>
               <span className="text-muted-foreground tabular-nums">
                 {item.estimatedHours.toFixed(2)} h

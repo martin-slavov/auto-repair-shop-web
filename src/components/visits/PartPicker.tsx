@@ -54,6 +54,7 @@ function PartPicker({ id, selected, onSelect, error, disabled }: PartPickerProps
         id={id}
         type="search"
         placeholder="Search parts by name"
+        maxLength={100}
         value={name}
         disabled={disabled}
         onChange={(event) => setName(event.target.value)}

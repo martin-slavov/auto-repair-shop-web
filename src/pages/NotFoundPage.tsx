@@ -1,7 +1,9 @@
 import { Link } from 'react-router'
 import { buttonVariants } from '@/components/ui/button'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 function NotFoundPage() {
+  useDocumentTitle('Page not found')
   return (
     <div className="flex flex-col items-center gap-4 py-16 text-center">
       <h1>Page not found</h1>

@@ -1,6 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
+import { formatDate } from '../../lib/date'
 import type { SortState } from '../../types/api'
 import type { Vehicle, VehicleSortField } from '../../types/vehicle'
 
@@ -58,7 +59,8 @@ function VehicleTable({
       header: 'First registration',
       sortField: 'firstRegistrationDate',
       className: 'tabular-nums',
-      cell: (vehicle) => vehicle.firstRegistrationDate ?? '—',
+      cell: (vehicle) =>
+        vehicle.firstRegistrationDate ? formatDate(vehicle.firstRegistrationDate) : '—',
     },
     {
       id: 'owner',

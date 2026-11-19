@@ -29,7 +29,7 @@ function SortControl<S extends string>({ options, sort, onSortChange }: SortCont
           const field = event.target.value as S
           if (field !== sort.field) onSortChange(field)
         }}
-        className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="h-8 rounded-lg border border-input bg-background px-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

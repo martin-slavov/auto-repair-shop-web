@@ -11,6 +11,7 @@ import { getInvoices } from '../api/invoices'
 import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import type { Invoice, InvoiceSortField, PaidFilter } from '../types/invoice'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 type InvoiceFilters = {
   invoiceNumber: string
@@ -38,6 +39,7 @@ const fetchInvoicePage: FetchPage<Invoice, InvoiceSortField, InvoiceFilters> = (
   )
 
 function InvoicesPage() {
+  useDocumentTitle('Invoices')
   const { user } = useAuth()
   if (user?.role === 'ADMIN') return <AdminInvoicesView />
   return <CustomerInvoicesView />
@@ -66,6 +68,7 @@ function CustomerInvoicesView() {
               <Label htmlFor="invoices-number">Invoice number</Label>
               <Input
                 id="invoices-number"
+                maxLength={20}
                 type="search"
                 placeholder="e.g. INV-2026"
                 value={table.filters.invoiceNumber}
@@ -76,6 +79,7 @@ function CustomerInvoicesView() {
               <Label htmlFor="invoices-license-plate">License plate</Label>
               <Input
                 id="invoices-license-plate"
+                maxLength={8}
                 type="search"
                 placeholder="e.g. CA1234"
                 value={table.filters.licensePlate}
@@ -112,7 +116,7 @@ function CustomerInvoicesView() {
             loading={table.loading}
             error={table.error && `Could not load invoices: ${table.error}`}
             emptyMessage={
-              table.hasActiveFilters ? 'No invoices match your filters.' : 'You have no invoices yet.'
+              table.hasActiveFilters ? 'No invoices match your filters.' : 'No invoices yet.'
             }
           />
         </CardContent>
