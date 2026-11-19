@@ -15,12 +15,6 @@ import {
   vehicleColumn,
 } from './visitColumns'
 
-function mechanicsText(visit: ServiceVisit): string {
-  return sortMechanicsLeadFirst(visit.mechanics)
-    .map((mechanic) => `${mechanic.mechanicName} (${MECHANIC_ROLE_LABELS[mechanic.roleInVisit]})`)
-    .join(', ')
-}
-
 interface VisitTableProps {
   rows: ServiceVisit[] | null
   sort: SortState<ServiceVisitSortField>
@@ -58,11 +52,14 @@ function VisitTable({
       className: 'w-full min-w-32 whitespace-normal',
       cell: (visit) => {
         if (visit.mechanics.length === 0) return '—'
-        const text = mechanicsText(visit)
         return (
-          <div title={text} className="line-clamp-2 wrap-anywhere">
-            {text}
-          </div>
+          <ul>
+            {sortMechanicsLeadFirst(visit.mechanics).map((mechanic, index) => (
+              <li key={mechanic.assignmentId ?? index} className="wrap-anywhere">
+                {mechanic.mechanicName} ({MECHANIC_ROLE_LABELS[mechanic.roleInVisit]})
+              </li>
+            ))}
+          </ul>
         )
       },
     },
@@ -73,14 +70,19 @@ function VisitTable({
       align: 'right',
       className: 'whitespace-nowrap',
       cell: (visit) => (
-        <div className="flex flex-nowrap justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={() => onDetails(visit)}>
+        <div className="ml-auto grid w-max grid-cols-[repeat(2,7.75rem)] gap-2">
+          <Button variant="outline" size="sm" className="w-full" onClick={() => onDetails(visit)}>
             <Info aria-hidden="true" />
             Details
             <span className="sr-only"> of the visit for {visit.licensePlate}</span>
           </Button>
           {(visit.status === 'SCHEDULED' || visit.status === 'IN_PROGRESS') && (
-            <Button variant="outline" size="sm" onClick={() => onMechanics(visit)}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => onMechanics(visit)}
+            >
               <Users aria-hidden="true" />
               Mechanics
               <span className="sr-only"> of the visit for {visit.licensePlate}</span>
@@ -88,12 +90,22 @@ function VisitTable({
           )}
           {visit.status === 'SCHEDULED' && (
             <>
-              <Button variant="outline" size="sm" onClick={() => onReschedule(visit)}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full"
+                onClick={() => onReschedule(visit)}
+              >
                 <CalendarClock aria-hidden="true" />
                 Reschedule
                 <span className="sr-only"> the visit for {visit.licensePlate}</span>
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => onDelete(visit)}>
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                onClick={() => onDelete(visit)}
+              >
                 <Trash2 aria-hidden="true" />
                 Delete
                 <span className="sr-only"> the visit for {visit.licensePlate}</span>
@@ -101,7 +113,7 @@ function VisitTable({
             </>
           )}
           {visit.status === 'COMPLETED' && (
-            <Button size="sm" onClick={() => onInvoice(visit)}>
+            <Button size="sm" className="w-full" onClick={() => onInvoice(visit)}>
               <Receipt aria-hidden="true" />
               Create invoice
               <span className="sr-only"> for {visit.licensePlate}</span>
