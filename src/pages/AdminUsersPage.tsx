@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import TablePagination from '@/components/data-table/TablePagination'
 import ConfirmActionDialog from '@/components/ConfirmActionDialog'
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog'
 import CreateUserDialog from '@/components/users/CreateUserDialog'
+import EditUserDialog from '@/components/users/EditUserDialog'
 import UserTable from '@/components/users/UserTable'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
 import { SELECT_CLASS } from '@/lib/fieldClasses'
-import { getUsers, setUserEnabled } from '../api/adminUsers'
+import { deleteUser, getUsers, setUserEnabled } from '../api/adminUsers'
 import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import type { RegisterResponse, Role } from '../types/auth'
@@ -60,6 +62,10 @@ function AdminUsersPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [toggleOpen, setToggleOpen] = useState(false)
   const [toggleTarget, setToggleTarget] = useState<UserAdmin | null>(null)
+  const [editOpen, setEditOpen] = useState(false)
+  const [editTarget, setEditTarget] = useState<UserAdmin | null>(null)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<UserAdmin | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
   useEffect(() => {
@@ -71,6 +77,28 @@ function AdminUsersPage() {
   function openToggle(user: UserAdmin) {
     setToggleTarget(user)
     setToggleOpen(true)
+  }
+
+  function openEdit(user: UserAdmin) {
+    setEditTarget(user)
+    setEditOpen(true)
+  }
+
+  function openDelete(user: UserAdmin) {
+    setDeleteTarget(user)
+    setDeleteOpen(true)
+  }
+
+  function handleEdited(user: UserAdmin) {
+    setEditOpen(false)
+    setSuccess(`User ${user.username} was updated.`)
+    table.refresh()
+  }
+
+  function handleDeleted() {
+    setDeleteOpen(false)
+    if (deleteTarget) setSuccess(`User ${deleteTarget.username} was deleted.`)
+    table.refreshAfterRowRemoved()
   }
 
   function handleCreated(user: RegisterResponse) {
@@ -192,6 +220,8 @@ function AdminUsersPage() {
             emptyMessage={table.hasActiveFilters ? 'No users match your filters.' : 'No users yet.'}
             currentUsername={currentUser?.username}
             onToggleEnabled={openToggle}
+            onEdit={openEdit}
+            onDelete={openDelete}
           />
         </CardContent>
         <CardFooter>
@@ -207,6 +237,29 @@ function AdminUsersPage() {
       </Card>
 
       <CreateUserDialog open={createOpen} onOpenChange={setCreateOpen} onCreated={handleCreated} />
+
+      <EditUserDialog
+        open={editOpen}
+        user={editTarget}
+        onOpenChange={setEditOpen}
+        onSaved={handleEdited}
+        onRefreshNeeded={table.refresh}
+      />
+
+      <ConfirmDeleteDialog
+        open={deleteOpen}
+        title="Delete user?"
+        description={
+          deleteTarget &&
+          `${deleteTarget.username} will be deleted permanently. Users with vehicles, requests, visits or invoices cannot be deleted; disable them instead.`
+        }
+        onOpenChange={setDeleteOpen}
+        onConfirm={async () => {
+          if (deleteTarget) await deleteUser(deleteTarget.id)
+        }}
+        onDeleted={handleDeleted}
+        onRefreshNeeded={table.refresh}
+      />
 
       <ConfirmActionDialog
         open={toggleOpen}

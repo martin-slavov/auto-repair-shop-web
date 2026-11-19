@@ -35,3 +35,11 @@ export interface ChangePasswordRequest {
   currentPassword: string
   newPassword: string
 }
+
+export type UserProfile = UserAdmin
+
+export interface UserProfileUpdateRequest {
+  email: string
+  firstName: string
+  lastName: string
+}

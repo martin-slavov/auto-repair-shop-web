@@ -1,4 +1,4 @@
-import { UserCheck, UserX } from 'lucide-react'
+import { Pencil, Trash2, UserCheck, UserX } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
 import type { SortState } from '../../types/api'
@@ -15,6 +15,8 @@ interface UserTableProps {
   emptyMessage: string
   currentUsername: string | undefined
   onToggleEnabled: (user: UserAdmin) => void
+  onEdit: (user: UserAdmin) => void
+  onDelete: (user: UserAdmin) => void
 }
 
 function UserTable({
@@ -26,6 +28,8 @@ function UserTable({
   emptyMessage,
   currentUsername,
   onToggleEnabled,
+  onEdit,
+  onDelete,
 }: UserTableProps) {
   const columns: DataTableColumn<UserAdmin, UserSortField>[] = [
     {
@@ -83,22 +87,48 @@ function UserTable({
       header: 'Actions',
       align: 'right',
       className: 'whitespace-nowrap',
-      cell: (user) =>
-        user.username !== currentUsername && (
-          <div className="flex flex-nowrap justify-end gap-2">
-            {user.enabled ? (
-              <Button variant="destructive" size="sm" onClick={() => onToggleEnabled(user)}>
-                <UserX aria-hidden="true" />
-                Disable<span className="sr-only"> {user.username}</span>
+      cell: (user) => (
+        <div className="ml-auto grid w-max grid-cols-[repeat(3,5.5rem)] gap-2">
+          <Button variant="outline" size="sm" className="w-full" onClick={() => onEdit(user)}>
+            <Pencil aria-hidden="true" />
+            Edit<span className="sr-only"> {user.username}</span>
+          </Button>
+          {user.username !== currentUsername && (
+            <>
+              {user.enabled ? (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => onToggleEnabled(user)}
+                >
+                  <UserX aria-hidden="true" />
+                  Disable<span className="sr-only"> {user.username}</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => onToggleEnabled(user)}
+                >
+                  <UserCheck aria-hidden="true" />
+                  Enable<span className="sr-only"> {user.username}</span>
+                </Button>
+              )}
+              <Button
+                variant="destructive"
+                size="sm"
+                className="w-full"
+                onClick={() => onDelete(user)}
+              >
+                <Trash2 aria-hidden="true" />
+                Delete<span className="sr-only"> {user.username}</span>
               </Button>
-            ) : (
-              <Button variant="outline" size="sm" onClick={() => onToggleEnabled(user)}>
-                <UserCheck aria-hidden="true" />
-                Enable<span className="sr-only"> {user.username}</span>
-              </Button>
-            )}
-          </div>
-        ),
+            </>
+          )}
+        </div>
+      ),
     },
   ]
 
