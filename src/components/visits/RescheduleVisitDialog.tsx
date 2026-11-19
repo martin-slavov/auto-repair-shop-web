@@ -59,6 +59,8 @@ function RescheduleVisitDialog({
 
   const leadMechanicId =
     visit?.mechanics.find((mechanic) => mechanic.roleInVisit === 'LEAD')?.mechanicId ?? null
+  const hasAssistants =
+    visit?.mechanics.some((mechanic) => mechanic.roleInVisit === 'ASSISTANT') ?? false
 
   function handleOpenChange(nextOpen: boolean) {
     if (submitting) return
@@ -137,6 +139,12 @@ function RescheduleVisitDialog({
               reloadKey={reloadKey}
               error={fieldErrors.scheduledDate}
             />
+          )}
+
+          {hasAssistants && (
+            <p className="text-sm text-muted-foreground">
+              Free times are shown for the lead mechanic. Assistants are checked when you save.
+            </p>
           )}
 
           <DialogFooter>

@@ -15,12 +15,29 @@ import { TEXTAREA_CLASS } from '@/lib/fieldClasses'
 import { ApiError } from '../../api/client'
 import { completeServiceVisit } from '../../api/serviceVisits'
 import { decimalMax, validateDecimal } from '../../lib/decimal'
-import type { ServiceVisit } from '../../types/serviceVisit'
+import type { AssistantHours, ServiceVisit } from '../../types/serviceVisit'
 import VisitJobSummary from './VisitJobSummary'
 
 const NOTES_MAX = 5000
 const HOURS_DIGITS = 3
 const HOURS_MAX = decimalMax(HOURS_DIGITS)
+
+function assistantFieldKey(assignmentId: number): string {
+  return `assistant-${assignmentId}`
+}
+
+function mapServerFieldErrors(
+  fieldErrors: Record<string, string>,
+  sent: AssistantHours[],
+): Record<string, string> {
+  const mapped: Record<string, string> = {}
+  for (const [key, message] of Object.entries(fieldErrors)) {
+    const match = /^assistantHours[(d+)]/.exec(key)
+    const entry = match ? sent[Number(match[1])] : undefined
+    mapped[entry ? assistantFieldKey(entry.assignmentId) : key] = message
+  }
+  return mapped
+}
 
 interface CompleteVisitDialogProps {
   open: boolean
@@ -39,6 +56,7 @@ function CompleteVisitDialog({
 }: CompleteVisitDialogProps) {
   const [technicalNotes, setTechnicalNotes] = useState('')
   const [hoursWorked, setHoursWorked] = useState('')
+  const [assistantHours, setAssistantHours] = useState<Record<number, string>>({})
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
@@ -50,12 +68,20 @@ function CompleteVisitDialog({
     if (open) {
       setTechnicalNotes(visit?.technicalNotes ?? '')
       setHoursWorked('')
+      setAssistantHours({})
       setSubmitting(false)
       setError(null)
       setFieldErrors({})
       setNotFound(false)
     }
   }
+
+  const assistants = (visit?.mechanics ?? []).flatMap((mechanic) =>
+    mechanic.roleInVisit === 'ASSISTANT' && mechanic.assignmentId !== null
+      ? [{ assignmentId: mechanic.assignmentId, name: mechanic.mechanicName }]
+      : [],
+  )
+  const hasAssistants = assistants.length > 0
 
   function handleOpenChange(nextOpen: boolean) {
     if (submitting) return
@@ -81,23 +107,38 @@ function CompleteVisitDialog({
     if (hoursError) {
       formErrors.hoursWorked = hoursError
     }
+    for (const assistant of assistants) {
+      const assistantError = validateDecimal(assistantHours[assistant.assignmentId] ?? '', {
+        label: 'Hours worked',
+        integerDigits: HOURS_DIGITS,
+      })
+      if (assistantError) {
+        formErrors[assistantFieldKey(assistant.assignmentId)] = assistantError
+      }
+    }
     setFieldErrors(formErrors)
     if (Object.keys(formErrors).length > 0) {
       return
     }
+
+    const sentAssistantHours: AssistantHours[] = assistants.map((assistant) => ({
+      assignmentId: assistant.assignmentId,
+      hoursWorked: Number(assistantHours[assistant.assignmentId]),
+    }))
 
     setSubmitting(true)
     try {
       const saved = await completeServiceVisit(visit.id, {
         technicalNotes,
         hoursWorked: Number(hoursWorked),
+        ...(hasAssistants && { assistantHours: sentAssistantHours }),
       })
       setSubmitting(false)
       onCompleted(saved)
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         const hasFieldErrors = Object.keys(err.fieldErrors).length > 0
-        setFieldErrors(err.fieldErrors)
+        setFieldErrors(mapServerFieldErrors(err.fieldErrors, sentAssistantHours))
         setError(hasFieldErrors ? null : err.message)
         if (err.status === 404) {
           setNotFound(true)
@@ -116,7 +157,9 @@ function CompleteVisitDialog({
           <DialogTitle>Complete visit</DialogTitle>
           <DialogDescription>
             {visit &&
-              `Add your technical notes and hours for the visit for ${visit.licensePlate}. The visit will move to Completed.`}
+              (hasAssistants
+                ? `Add the technical notes, your hours and the hours of each assistant for the visit for ${visit.licensePlate}. The visit will move to Completed.`
+                : `Add your technical notes and hours for the visit for ${visit.licensePlate}. The visit will move to Completed.`)}
           </DialogDescription>
         </DialogHeader>
         {visit && <VisitJobSummary visit={visit} />}
@@ -152,7 +195,11 @@ function CompleteVisitDialog({
             />
           </FormField>
 
-          <FormField id="complete-hours-worked" label="Hours worked" error={fieldErrors.hoursWorked}>
+          <FormField
+            id="complete-hours-worked"
+            label={hasAssistants ? 'Your hours' : 'Hours worked'}
+            error={fieldErrors.hoursWorked}
+          >
             <Input
               id="complete-hours-worked"
               type="number"
@@ -166,6 +213,39 @@ function CompleteVisitDialog({
               {...fieldErrorProps('complete-hours-worked', fieldErrors.hoursWorked)}
             />
           </FormField>
+
+          {hasAssistants && (
+            <fieldset className="flex flex-col gap-3">
+              <legend className="mb-3 text-sm font-medium">Assistant hours</legend>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {assistants.map((assistant) => {
+                  const key = assistantFieldKey(assistant.assignmentId)
+                  const id = `complete-${key}`
+                  return (
+                    <FormField key={key} id={id} label={assistant.name} error={fieldErrors[key]}>
+                      <Input
+                        id={id}
+                        type="number"
+                        inputMode="decimal"
+                        required
+                        min={0.01}
+                        max={HOURS_MAX}
+                        step={0.01}
+                        value={assistantHours[assistant.assignmentId] ?? ''}
+                        onChange={(event) =>
+                          setAssistantHours((prev) => ({
+                            ...prev,
+                            [assistant.assignmentId]: event.target.value,
+                          }))
+                        }
+                        {...fieldErrorProps(id, fieldErrors[key])}
+                      />
+                    </FormField>
+                  )
+                })}
+              </div>
+            </fieldset>
+          )}
 
           <DialogFooter>
             <Button

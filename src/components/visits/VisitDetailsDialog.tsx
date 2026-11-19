@@ -23,6 +23,7 @@ import { SERVICE_REQUEST_TYPE_LABELS } from '../../types/serviceRequest'
 import {
   MECHANIC_ROLE_LABELS,
   SERVICE_VISIT_STATUS_LABELS,
+  sortMechanicsLeadFirst,
   visitVehicleName,
   type ServiceVisit,
 } from '../../types/serviceVisit'
@@ -84,6 +85,12 @@ function VisitDetailsDialog({
                 <dd className="tabular-nums">
                   {visit.completedDate ? formatDateTime(visit.completedDate) : '—'}
                 </dd>
+                {visit.myRole && (
+                  <>
+                    <dt className="text-muted-foreground">Your role</dt>
+                    <dd>{MECHANIC_ROLE_LABELS[visit.myRole]}</dd>
+                  </>
+                )}
               </dl>
 
               <section className="flex flex-col gap-2">
@@ -100,8 +107,8 @@ function VisitDetailsDialog({
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {visit.mechanics.map((mechanic, index) => (
-                        <TableRow key={index}>
+                      {sortMechanicsLeadFirst(visit.mechanics).map((mechanic, index) => (
+                        <TableRow key={mechanic.assignmentId ?? index}>
                           <TableCell className="font-medium">{mechanic.mechanicName}</TableCell>
                           <TableCell>{MECHANIC_ROLE_LABELS[mechanic.roleInVisit]}</TableCell>
                           <TableCell className="text-right tabular-nums">

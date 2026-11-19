@@ -22,6 +22,7 @@ import {
 } from '../../types/serviceVisit'
 import RescheduleVisitDialog from './RescheduleVisitDialog'
 import VisitDetailsDialog from './VisitDetailsDialog'
+import VisitMechanicsDialog from './VisitMechanicsDialog'
 import VisitTable from './VisitTable'
 
 const SUCCESS_MESSAGE_MS = 4000
@@ -76,6 +77,8 @@ function AdminVisitsView() {
   })
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [detailsVisit, setDetailsVisit] = useState<ServiceVisit | null>(null)
+  const [mechanicsOpen, setMechanicsOpen] = useState(false)
+  const [mechanicsVisit, setMechanicsVisit] = useState<ServiceVisit | null>(null)
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
   const [rescheduleVisit, setRescheduleVisit] = useState<ServiceVisit | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
@@ -102,6 +105,11 @@ function AdminVisitsView() {
   function openDetails(visit: ServiceVisit) {
     setDetailsVisit(visit)
     setDetailsOpen(true)
+  }
+
+  function openMechanics(visit: ServiceVisit) {
+    setMechanicsVisit(visit)
+    setMechanicsOpen(true)
   }
 
   function openReschedule(visit: ServiceVisit) {
@@ -270,6 +278,7 @@ function AdminVisitsView() {
               table.hasActiveFilters ? 'No visits match your filters.' : 'No visits yet.'
             }
             onDetails={openDetails}
+            onMechanics={openMechanics}
             onReschedule={openReschedule}
             onDelete={openDelete}
             onInvoice={openInvoice}
@@ -292,6 +301,15 @@ function AdminVisitsView() {
         visit={detailsVisit}
         onOpenChange={setDetailsOpen}
         audience="admin"
+      />
+
+      <VisitMechanicsDialog
+        open={mechanicsOpen}
+        visit={mechanicsVisit}
+        mechanics={mechanics}
+        mechanicsError={mechanicsError}
+        onOpenChange={setMechanicsOpen}
+        onChanged={table.refresh}
       />
 
       <RescheduleVisitDialog

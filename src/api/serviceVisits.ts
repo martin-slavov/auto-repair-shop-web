@@ -51,6 +51,14 @@ export function completeServiceVisit(id: number, body: CompleteVisitBody): Promi
   return apiPatch<ServiceVisit>(`/api/service-visits/${id}/complete`, body)
 }
 
+export function addVisitAssistant(visitId: number, mechanicId: number): Promise<ServiceVisit> {
+  return apiPost<ServiceVisit>(`/api/service-visits/${visitId}/mechanics`, { mechanicId })
+}
+
+export function removeVisitAssistant(visitId: number, mechanicId: number): Promise<ServiceVisit> {
+  return apiDelete<ServiceVisit>(`/api/service-visits/${visitId}/mechanics/${mechanicId}`)
+}
+
 export function getVisitParts(visitId: number, signal?: AbortSignal): Promise<VisitPart[]> {
   return apiGet<VisitPart[]>(`/api/service-visits/${visitId}/parts`, signal)
 }

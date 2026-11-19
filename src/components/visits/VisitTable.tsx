@@ -1,4 +1,4 @@
-import { CalendarClock, Info, Receipt, Trash2 } from 'lucide-react'
+import { CalendarClock, Info, Receipt, Trash2, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
 import type { SortState } from '../../types/api'
@@ -29,6 +29,7 @@ interface VisitTableProps {
   error: string | null
   emptyMessage: string
   onDetails: (visit: ServiceVisit) => void
+  onMechanics: (visit: ServiceVisit) => void
   onReschedule: (visit: ServiceVisit) => void
   onDelete: (visit: ServiceVisit) => void
   onInvoice: (visit: ServiceVisit) => void
@@ -42,6 +43,7 @@ function VisitTable({
   error,
   emptyMessage,
   onDetails,
+  onMechanics,
   onReschedule,
   onDelete,
   onInvoice,
@@ -77,6 +79,13 @@ function VisitTable({
             Details
             <span className="sr-only"> of the visit for {visit.licensePlate}</span>
           </Button>
+          {(visit.status === 'SCHEDULED' || visit.status === 'IN_PROGRESS') && (
+            <Button variant="outline" size="sm" onClick={() => onMechanics(visit)}>
+              <Users aria-hidden="true" />
+              Mechanics
+              <span className="sr-only"> of the visit for {visit.licensePlate}</span>
+            </Button>
+          )}
           {visit.status === 'SCHEDULED' && (
             <>
               <Button variant="outline" size="sm" onClick={() => onReschedule(visit)}>

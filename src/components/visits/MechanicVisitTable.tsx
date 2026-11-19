@@ -4,7 +4,7 @@ import DataTable, { type DataTableColumn } from '@/components/data-table/DataTab
 import type { SortState } from '../../types/api'
 import { SERVICE_REQUEST_TYPE_LABELS } from '../../types/serviceRequest'
 import {
-  currentMechanicRole,
+  MECHANIC_ROLE_LABELS,
   type ServiceVisit,
   type ServiceVisitSortField,
 } from '../../types/serviceVisit'
@@ -14,6 +14,7 @@ import {
   statusColumn,
   vehicleColumn,
 } from './visitColumns'
+import VisitStatusBadge from './VisitStatusBadge'
 
 interface MechanicVisitTableProps {
   rows: ServiceVisit[] | null
@@ -64,7 +65,19 @@ function MechanicVisitTable({
         </div>
       ),
     },
-    statusColumn,
+    {
+      ...statusColumn,
+      cell: (visit) => (
+        <div className="flex flex-col items-start gap-1">
+          <VisitStatusBadge status={visit.status} />
+          {visit.myRole && (
+            <span className="text-xs text-muted-foreground">
+              {MECHANIC_ROLE_LABELS[visit.myRole]}
+            </span>
+          )}
+        </div>
+      ),
+    },
     completedDateColumn,
     {
       id: 'actions',
@@ -92,7 +105,7 @@ function MechanicVisitTable({
                 Parts
                 <span className="sr-only"> for the visit for {visit.licensePlate}</span>
               </Button>
-              {currentMechanicRole(visit) !== 'ASSISTANT' && (
+              {visit.myRole === 'LEAD' && (
                 <Button size="sm" onClick={() => onComplete(visit)}>
                   <CircleCheck aria-hidden="true" />
                   Complete

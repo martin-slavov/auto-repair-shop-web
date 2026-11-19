@@ -30,6 +30,7 @@ export interface MechanicAssignment {
   roleInVisit: MechanicRole
   hoursWorked: number
   mechanicId: number | null
+  assignmentId: number | null
 }
 
 // ServiceVisitResponseDTO
@@ -45,6 +46,7 @@ export interface ServiceVisit {
   requestDescription: string | null
   vehicleManufacturer: string
   vehicleModel: string
+  myRole: MechanicRole | null
 }
 
 // ServiceVisitUpdateDTO
@@ -62,10 +64,6 @@ export function sortMechanicsLeadFirst(mechanics: MechanicAssignment[]): Mechani
   )
 }
 
-export function currentMechanicRole(visit: ServiceVisit): MechanicRole | null {
-  return visit.mechanics.length === 1 ? visit.mechanics[0].roleInVisit : null
-}
-
 // AvailableSlotDTO
 export interface AvailableSlot {
   start: string
@@ -73,9 +71,15 @@ export interface AvailableSlot {
 }
 
 // CompleteVisitDTO
+export interface AssistantHours {
+  assignmentId: number
+  hoursWorked: number
+}
+
 export interface CompleteVisitBody {
   technicalNotes: string
   hoursWorked: number
+  assistantHours?: AssistantHours[]
 }
 
 // VisitPartResponseDTO
