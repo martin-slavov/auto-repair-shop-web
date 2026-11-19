@@ -15,6 +15,7 @@ import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import type { RegisterResponse, Role } from '../types/auth'
 import { USER_ROLE_LABELS, type UserAdmin, type UserSortField } from '../types/user'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const SUCCESS_MESSAGE_MS = 4000
 
@@ -48,6 +49,7 @@ const fetchUserPage: FetchPage<UserAdmin, UserSortField, UserFilters> = (
   )
 
 function AdminUsersPage() {
+  useDocumentTitle('Users')
   const { user: currentUser } = useAuth()
   const table = useDataTable({
     fetchPage: fetchUserPage,
@@ -107,7 +109,7 @@ function AdminUsersPage() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success}
         </p>
@@ -124,6 +126,7 @@ function AdminUsersPage() {
               <Label htmlFor="users-username">Username</Label>
               <Input
                 id="users-username"
+                maxLength={50}
                 type="search"
                 value={table.filters.username}
                 onChange={(event) => table.setFilter('username', event.target.value)}
@@ -133,6 +136,7 @@ function AdminUsersPage() {
               <Label htmlFor="users-email">Email</Label>
               <Input
                 id="users-email"
+                maxLength={254}
                 type="search"
                 value={table.filters.email}
                 onChange={(event) => table.setFilter('email', event.target.value)}

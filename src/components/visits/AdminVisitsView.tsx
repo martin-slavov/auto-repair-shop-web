@@ -156,7 +156,7 @@ function AdminVisitsView() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success}
         </p>
@@ -174,6 +174,7 @@ function AdminVisitsView() {
                 <Label htmlFor="visits-license-plate">License plate</Label>
                 <Input
                   id="visits-license-plate"
+                  maxLength={8}
                   type="search"
                   placeholder="e.g. CA1234"
                   value={table.filters.licensePlate}
@@ -266,7 +267,7 @@ function AdminVisitsView() {
             loading={table.loading}
             error={table.error && `Could not load visits: ${table.error}`}
             emptyMessage={
-              table.hasActiveFilters ? 'No visits match your filters.' : 'No service visits yet.'
+              table.hasActiveFilters ? 'No visits match your filters.' : 'No visits yet.'
             }
             onDetails={openDetails}
             onReschedule={openReschedule}

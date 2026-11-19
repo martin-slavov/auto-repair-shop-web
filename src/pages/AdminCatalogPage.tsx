@@ -14,6 +14,7 @@ import { SELECT_CLASS } from '@/lib/fieldClasses'
 import { deleteCatalogItem, getCatalogItems } from '../api/catalog'
 import type { SortState } from '../types/api'
 import type { CatalogItem, CatalogSortField } from '../types/catalog'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const SUCCESS_MESSAGE_MS = 4000
 const PRICE_RANGE_ERROR_ID = 'catalog-price-range-error'
@@ -46,6 +47,7 @@ const fetchAdminCatalogPage: FetchPage<CatalogItem, CatalogSortField, AdminCatal
   )
 
 function AdminCatalogPage() {
+  useDocumentTitle('Catalog')
   const table = useDataTable({
     fetchPage: fetchAdminCatalogPage,
     initialSort,
@@ -124,7 +126,7 @@ function AdminCatalogPage() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success}
         </p>
@@ -142,6 +144,7 @@ function AdminCatalogPage() {
                 <Label htmlFor="catalog-filter-name">Name</Label>
                 <Input
                   id="catalog-filter-name"
+                  maxLength={100}
                   type="search"
                   value={table.filters.name}
                   onChange={(event) => table.setFilter('name', event.target.value)}

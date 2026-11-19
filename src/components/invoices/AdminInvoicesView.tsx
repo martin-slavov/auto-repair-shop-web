@@ -141,7 +141,7 @@ function AdminInvoicesView() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success}
         </p>
@@ -159,6 +159,7 @@ function AdminInvoicesView() {
                 <Label htmlFor="invoices-number">Invoice number</Label>
                 <Input
                   id="invoices-number"
+                  maxLength={20}
                   type="search"
                   placeholder="e.g. INV-2026"
                   value={table.filters.invoiceNumber}
@@ -169,6 +170,7 @@ function AdminInvoicesView() {
                 <Label htmlFor="invoices-license-plate">License plate</Label>
                 <Input
                   id="invoices-license-plate"
+                  maxLength={8}
                   type="search"
                   placeholder="e.g. CA1234"
                   value={table.filters.licensePlate}

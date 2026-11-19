@@ -14,6 +14,7 @@ import { SELECT_CLASS } from '@/lib/fieldClasses'
 import { deletePart, getAdminParts } from '../api/parts'
 import type { SortState } from '../types/api'
 import type { PartAdmin, PartAdminSortField } from '../types/part'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const SUCCESS_MESSAGE_MS = 4000
 const PRICE_RANGE_ERROR_ID = 'parts-price-range-error'
@@ -54,6 +55,7 @@ const fetchAdminPartPage: FetchPage<PartAdmin, PartAdminSortField, AdminPartFilt
   )
 
 function AdminPartsPage() {
+  useDocumentTitle('Parts')
   const table = useDataTable({
     fetchPage: fetchAdminPartPage,
     initialSort,
@@ -132,7 +134,7 @@ function AdminPartsPage() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success}
         </p>
@@ -150,6 +152,7 @@ function AdminPartsPage() {
                 <Label htmlFor="parts-filter-name">Name</Label>
                 <Input
                   id="parts-filter-name"
+                  maxLength={100}
                   type="search"
                   value={table.filters.name}
                   onChange={(event) => table.setFilter('name', event.target.value)}
@@ -159,6 +162,7 @@ function AdminPartsPage() {
                 <Label htmlFor="parts-filter-serial-number">Serial number</Label>
                 <Input
                   id="parts-filter-serial-number"
+                  maxLength={60}
                   type="search"
                   value={table.filters.serialNumber}
                   onChange={(event) => table.setFilter('serialNumber', event.target.value)}

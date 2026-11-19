@@ -6,12 +6,27 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ApiError } from '../api/client'
 import { useAuth } from '../auth/useAuth'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
+
+interface LoginLocationState {
+  registered?: boolean
+  expired?: boolean
+  from?: unknown
+}
+
+function safeReturnPath(from: unknown): string {
+  return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/'
+}
 
 function LoginPage() {
+  useDocumentTitle('Login')
   const { user, login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const registered = (location.state as { registered?: boolean } | null)?.registered === true
+  const state = location.state as LoginLocationState | null
+  const registered = state?.registered === true
+  const expired = state?.expired === true
+  const returnTo = safeReturnPath(state?.from)
 
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
@@ -20,7 +35,7 @@ function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
   if (user) {
-    return <Navigate to="/" replace />
+    return <Navigate to={returnTo} replace />
   }
 
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
@@ -31,7 +46,7 @@ function LoginPage() {
 
     try {
       await login(username, password)
-      navigate('/')
+      navigate(returnTo, { replace: true })
     } catch (err: unknown) {
       if (err instanceof ApiError) {
         setError(err.status === 401 ? 'Invalid username or password.' : err.message)
@@ -55,9 +70,17 @@ function LoginPage() {
             {registered && (
               <p
                 role="status"
-                className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+                className="rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
               >
                 Account created, please log in.
+              </p>
+            )}
+            {expired && !error && (
+              <p
+                role="status"
+                className="rounded-md border border-border bg-muted px-3 py-2 text-sm text-foreground"
+              >
+                Your session has expired. Please log in again.
               </p>
             )}
             {error && (

@@ -15,6 +15,7 @@ import { deleteVehicle, getVehicles } from '../api/vehicles'
 import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import type { Vehicle, VehicleSortField } from '../types/vehicle'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const SUCCESS_MESSAGE_MS = 4000
 
@@ -56,6 +57,7 @@ interface SuccessMessage {
 }
 
 function VehiclesPage() {
+  useDocumentTitle('Vehicles')
   const { user } = useAuth()
   const isAdmin = user?.role === 'ADMIN'
   const canCreate = user?.role === 'CUSTOMER'
@@ -130,7 +132,7 @@ function VehiclesPage() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success.text}
         </p>
@@ -147,6 +149,7 @@ function VehiclesPage() {
               <Label htmlFor="vehicles-license-plate">License plate</Label>
               <Input
                 id="vehicles-license-plate"
+                maxLength={8}
                 type="search"
                 placeholder="e.g. CA1234"
                 value={table.filters.licensePlate}
@@ -157,6 +160,7 @@ function VehiclesPage() {
               <Label htmlFor="vehicles-manufacturer">Manufacturer</Label>
               <Input
                 id="vehicles-manufacturer"
+                maxLength={50}
                 type="search"
                 placeholder="e.g. Volkswagen"
                 value={table.filters.manufacturer}
@@ -167,6 +171,7 @@ function VehiclesPage() {
               <Label htmlFor="vehicles-model">Model</Label>
               <Input
                 id="vehicles-model"
+                maxLength={80}
                 type="search"
                 placeholder="e.g. Golf"
                 value={table.filters.model}
@@ -192,8 +197,8 @@ function VehiclesPage() {
               error={loadError}
               emptyMessage={
                 table.hasActiveFilters
-                  ? 'No vehicles match your search.'
-                  : 'No vehicles registered yet.'
+                  ? 'No vehicles match your filters.'
+                  : 'No vehicles yet.'
               }
               onEdit={openEdit}
               onDelete={openDelete}
@@ -214,7 +219,7 @@ function VehiclesPage() {
                     <p>No vehicles match your filters.</p>
                   ) : (
                     <>
-                      <p>You have no vehicles yet.</p>
+                      <p>No vehicles yet.</p>
                       {canCreate && (
                         <Button onClick={openCreate}>
                           <Plus aria-hidden="true" />

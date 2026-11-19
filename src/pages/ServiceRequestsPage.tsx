@@ -32,6 +32,7 @@ import {
   type ServiceRequestStatus,
   type ServiceRequestType,
 } from '../types/serviceRequest'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const SUCCESS_MESSAGE_MS = 4000
 
@@ -79,6 +80,7 @@ interface SuccessMessage {
 }
 
 function ServiceRequestsPage() {
+  useDocumentTitle('Service requests')
   const { user } = useAuth()
   const isAdmin = user?.role === 'ADMIN'
   const isCustomer = user?.role === 'CUSTOMER'
@@ -184,7 +186,7 @@ function ServiceRequestsPage() {
       {success && (
         <p
           role="status"
-          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success"
+          className="mb-4 rounded-md border border-success/30 bg-success/10 px-3 py-2 text-sm text-success-text"
         >
           {success.text}
         </p>
@@ -201,6 +203,7 @@ function ServiceRequestsPage() {
               <Label htmlFor="requests-license-plate">License plate</Label>
               <Input
                 id="requests-license-plate"
+                maxLength={8}
                 type="search"
                 placeholder="e.g. CA1234"
                 value={table.filters.licensePlate}
@@ -262,7 +265,7 @@ function ServiceRequestsPage() {
               error={loadError}
               emptyMessage={
                 table.hasActiveFilters
-                  ? 'No requests match your filters.'
+                  ? 'No service requests match your filters.'
                   : 'No service requests yet.'
               }
               onApprove={openApprove}
@@ -293,10 +296,10 @@ function ServiceRequestsPage() {
                 error={loadError}
                 emptyState={
                   table.hasActiveFilters ? (
-                    <p>No requests match your filters.</p>
+                    <p>No service requests match your filters.</p>
                   ) : (
                     <>
-                      <p>You have no service requests yet.</p>
+                      <p>No service requests yet.</p>
                       <Button onClick={openCreate}>
                         <Plus aria-hidden="true" />
                         New request
