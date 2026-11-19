@@ -1,11 +1,12 @@
 import type { PageResponse } from '../types/api'
 import type {
   ServiceRequest,
+  ServiceRequestApprove,
   ServiceRequestCreate,
   ServiceRequestQuery,
   ServiceRequestUpdate,
 } from '../types/serviceRequest'
-import { apiDelete, apiGet, apiPost, apiPut, buildQueryString } from './client'
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut, buildQueryString } from './client'
 
 export function getServiceRequests(
   query: ServiceRequestQuery = {},
@@ -30,4 +31,15 @@ export function updateServiceRequest(
 
 export function deleteServiceRequest(id: number): Promise<void> {
   return apiDelete(`/api/service-requests/${id}`)
+}
+
+export function approveServiceRequest(
+  id: number,
+  body: ServiceRequestApprove,
+): Promise<ServiceRequest> {
+  return apiPatch<ServiceRequest>(`/api/service-requests/${id}/approve`, body)
+}
+
+export function rejectServiceRequest(id: number): Promise<ServiceRequest> {
+  return apiPatch<ServiceRequest>(`/api/service-requests/${id}/reject`)
 }

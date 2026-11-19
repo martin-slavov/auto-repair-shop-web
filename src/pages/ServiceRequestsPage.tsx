@@ -7,14 +7,21 @@ import { Label } from '@/components/ui/label'
 import TablePagination from '@/components/data-table/TablePagination'
 import DataCardList from '@/components/data-table/DataCardList'
 import SortControl, { type SortOption } from '@/components/data-table/SortControl'
+import ConfirmActionDialog from '@/components/ConfirmActionDialog'
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog'
+import ApproveServiceRequestDialog from '@/components/service-requests/ApproveServiceRequestDialog'
 import ServiceRequestCard from '@/components/service-requests/ServiceRequestCard'
 import ServiceRequestTable from '@/components/service-requests/ServiceRequestTable'
 import ServiceRequestFormDialog from '@/components/service-requests/ServiceRequestFormDialog'
 import { SELECT_CLASS } from '@/lib/fieldClasses'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
 import { useCustomerVehicles } from '@/hooks/useCustomerVehicles'
-import { deleteServiceRequest, getServiceRequests } from '../api/serviceRequests'
+import { useEnabledMechanics } from '@/hooks/useEnabledMechanics'
+import {
+  deleteServiceRequest,
+  getServiceRequests,
+  rejectServiceRequest,
+} from '../api/serviceRequests'
 import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import {
@@ -92,7 +99,12 @@ function ServiceRequestsPage() {
   const [formRequest, setFormRequest] = useState<ServiceRequest | null>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null)
+  const [approveOpen, setApproveOpen] = useState(false)
+  const [approveTarget, setApproveTarget] = useState<ServiceRequest | null>(null)
+  const [rejectOpen, setRejectOpen] = useState(false)
+  const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null)
   const [success, setSuccess] = useState<SuccessMessage | null>(null)
+  const { mechanics, error: mechanicsError } = useEnabledMechanics(isAdmin)
 
   useEffect(() => {
     if (!success) return
@@ -121,11 +133,36 @@ function ServiceRequestsPage() {
     table.refresh()
   }
 
+  function openApprove(request: ServiceRequest) {
+    setApproveTarget(request)
+    setApproveOpen(true)
+  }
+
+  function openReject(request: ServiceRequest) {
+    setRejectTarget(request)
+    setRejectOpen(true)
+  }
+
+  function refreshAfterRowLeft() {
+    if (table.rows?.length === 1 && table.page > 0) {
+      table.setPage(table.page - 1)
+    } else {
+      table.refresh()
+    }
+  }
+
   function handleDeleted(request: ServiceRequest) {
     setDeleteOpen(false)
     setSuccess({ text: `Service request for ${request.licensePlate} was deleted.` })
-    if (table.rows?.length === 1 && table.page > 0) {
-      table.setPage(table.page - 1)
+    refreshAfterRowLeft()
+  }
+
+  function handleDecided(request: ServiceRequest, decision: 'approved' | 'rejected') {
+    setApproveOpen(false)
+    setRejectOpen(false)
+    setSuccess({ text: `Request for ${request.licensePlate} was ${decision}.` })
+    if (table.filters.status !== '') {
+      refreshAfterRowLeft()
     } else {
       table.refresh()
     }
@@ -236,6 +273,8 @@ function ServiceRequestsPage() {
                   ? 'No requests match your filters.'
                   : 'No service requests yet.'
               }
+              onApprove={openApprove}
+              onReject={openReject}
             />
           ) : (
             <>
@@ -314,6 +353,40 @@ function ServiceRequestsPage() {
             }}
             onDeleted={() => {
               if (deleteTarget) handleDeleted(deleteTarget)
+            }}
+            onRefreshNeeded={table.refresh}
+          />
+        </>
+      )}
+
+      {isAdmin && (
+        <>
+          <ApproveServiceRequestDialog
+            open={approveOpen}
+            request={approveTarget}
+            mechanics={mechanics}
+            mechanicsError={mechanicsError}
+            onOpenChange={setApproveOpen}
+            onApproved={(request) => handleDecided(request, 'approved')}
+            onRefreshNeeded={table.refresh}
+          />
+
+          <ConfirmActionDialog
+            open={rejectOpen}
+            title="Reject service request?"
+            description={
+              rejectTarget &&
+              `The ${SERVICE_REQUEST_TYPE_LABELS[rejectTarget.type].toLowerCase()} request for ${rejectTarget.licensePlate} will be rejected. This cannot be undone.`
+            }
+            confirmLabel="Reject"
+            pendingLabel="Rejecting…"
+            confirmVariant="destructive"
+            onOpenChange={setRejectOpen}
+            onConfirm={async () => {
+              if (rejectTarget) await rejectServiceRequest(rejectTarget.id)
+            }}
+            onDone={() => {
+              if (rejectTarget) handleDecided(rejectTarget, 'rejected')
             }}
             onRefreshNeeded={table.refresh}
           />

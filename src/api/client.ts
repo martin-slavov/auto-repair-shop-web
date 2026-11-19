@@ -95,6 +95,17 @@ export function apiPut<T>(path: string, body: unknown): Promise<T> {
   })
 }
 
+export function apiPatch<T>(path: string, body?: unknown): Promise<T> {
+  if (body === undefined) {
+    return request<T>(path, { method: 'PATCH' })
+  }
+  return request<T>(path, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+}
+
 export function apiDelete(path: string): Promise<void> {
   return request<void>(path, { method: 'DELETE' })
 }

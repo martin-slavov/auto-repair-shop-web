@@ -42,6 +42,12 @@ export interface ServiceRequestUpdate {
   type: ServiceRequestType
 }
 
+// ApproveRequestDTO
+export interface ServiceRequestApprove {
+  mechanicId: number
+  scheduledDate: string
+}
+
 export type ServiceRequestSortField = 'preferredDate' | 'status' | 'type' | 'createdAt'
 
 export type ServiceRequestQuery = PageQuery<ServiceRequestSortField> & {

@@ -1,3 +1,5 @@
+import { Check, X } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
 import { formatDateTime } from '../../lib/date'
 import type { SortState } from '../../types/api'
@@ -8,47 +10,6 @@ import {
 } from '../../types/serviceRequest'
 import ServiceRequestStatusBadge from './ServiceRequestStatusBadge'
 
-const columns: DataTableColumn<ServiceRequest, ServiceRequestSortField>[] = [
-  {
-    id: 'createdAt',
-    header: 'Created',
-    sortField: 'createdAt',
-    className: 'tabular-nums',
-    cell: (request) => formatDateTime(request.createdAt),
-  },
-  {
-    id: 'licensePlate',
-    header: 'License plate',
-    className: 'font-medium',
-    cell: (request) => request.licensePlate,
-  },
-  {
-    id: 'type',
-    header: 'Type',
-    sortField: 'type',
-    cell: (request) => SERVICE_REQUEST_TYPE_LABELS[request.type],
-  },
-  {
-    id: 'description',
-    header: 'Description',
-    className: 'min-w-64 whitespace-normal break-words',
-    cell: (request) => request.description,
-  },
-  {
-    id: 'preferredDate',
-    header: 'Preferred date',
-    sortField: 'preferredDate',
-    className: 'tabular-nums',
-    cell: (request) => request.preferredDate ?? '—',
-  },
-  {
-    id: 'status',
-    header: 'Status',
-    sortField: 'status',
-    cell: (request) => <ServiceRequestStatusBadge status={request.status} />,
-  },
-]
-
 interface ServiceRequestTableProps {
   rows: ServiceRequest[] | null
   sort: SortState<ServiceRequestSortField>
@@ -56,6 +17,8 @@ interface ServiceRequestTableProps {
   loading: boolean
   error: string | null
   emptyMessage: string
+  onApprove: (request: ServiceRequest) => void
+  onReject: (request: ServiceRequest) => void
 }
 
 function ServiceRequestTable({
@@ -65,7 +28,73 @@ function ServiceRequestTable({
   loading,
   error,
   emptyMessage,
+  onApprove,
+  onReject,
 }: ServiceRequestTableProps) {
+  const columns: DataTableColumn<ServiceRequest, ServiceRequestSortField>[] = [
+    {
+      id: 'createdAt',
+      header: 'Created',
+      sortField: 'createdAt',
+      className: 'tabular-nums',
+      cell: (request) => formatDateTime(request.createdAt),
+    },
+    {
+      id: 'licensePlate',
+      header: 'License plate',
+      className: 'font-medium',
+      cell: (request) => request.licensePlate,
+    },
+    {
+      id: 'type',
+      header: 'Type',
+      sortField: 'type',
+      cell: (request) => SERVICE_REQUEST_TYPE_LABELS[request.type],
+    },
+    {
+      id: 'description',
+      header: 'Description',
+      className: 'w-full min-w-32 whitespace-normal',
+      cell: (request) => (
+        <div title={request.description} className="line-clamp-2 wrap-anywhere">
+          {request.description}
+        </div>
+      ),
+    },
+    {
+      id: 'preferredDate',
+      header: 'Preferred date',
+      sortField: 'preferredDate',
+      className: 'tabular-nums',
+      cell: (request) => request.preferredDate ?? '—',
+    },
+    {
+      id: 'status',
+      header: 'Status',
+      sortField: 'status',
+      cell: (request) => <ServiceRequestStatusBadge status={request.status} />,
+    },
+    {
+      id: 'actions',
+      header: 'Actions',
+      align: 'right',
+      className: 'whitespace-nowrap',
+      cell: (request) =>
+        request.status === 'PENDING' && (
+          <div className="flex flex-nowrap justify-end gap-2">
+            <Button size="sm" onClick={() => onApprove(request)}>
+              <Check aria-hidden="true" />
+              Approve<span className="sr-only"> request for {request.licensePlate}</span>
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => onReject(request)}>
+              <X aria-hidden="true" />
+              Reject<span className="sr-only"> request for {request.licensePlate}</span>
+            </Button>
+          </div>
+        ),
+    },
+  ]
+
   return (
     <DataTable
       columns={columns}
