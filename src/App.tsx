@@ -15,6 +15,7 @@ import AdminLayout from './components/admin/AdminLayout'
 import AdminUsersPage from './pages/AdminUsersPage'
 import AdminCatalogPage from './pages/AdminCatalogPage'
 import AdminPartsPage from './pages/AdminPartsPage'
+import AdminRightsPage from './pages/AdminRightsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import UiPreviewPage from './pages/UiPreviewPage'
 
@@ -50,6 +51,7 @@ function App() {
               <Route path="users" element={<AdminUsersPage />} />
               <Route path="catalog" element={<AdminCatalogPage />} />
               <Route path="parts" element={<AdminPartsPage />} />
+              <Route path="rights" element={<AdminRightsPage />} />
             </Route>
           </Route>
 

@@ -5,6 +5,7 @@ const adminLinks = [
   { to: '/admin/users', label: 'Users' },
   { to: '/admin/catalog', label: 'Catalog' },
   { to: '/admin/parts', label: 'Parts' },
+  { to: '/admin/rights', label: 'Rights' },
 ]
 
 function subNavLinkClass({ isActive }: { isActive: boolean }) {
