@@ -17,6 +17,7 @@ import AdminCatalogPage from './pages/AdminCatalogPage'
 import AdminPartsPage from './pages/AdminPartsPage'
 import AdminRightsPage from './pages/AdminRightsPage'
 import NotFoundPage from './pages/NotFoundPage'
+import AccountPage from './pages/AccountPage'
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
 
           <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN', 'MECHANIC']} />}>
             <Route path="visits" element={<VisitsPage />} />
+            <Route path="account" element={<AccountPage />} />
           </Route>
 
           <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN']} />}>

@@ -30,3 +30,8 @@ export type UserQuery = PageQuery<UserSortField> & {
   role?: Role | ''
   enabled?: boolean
 }
+
+export interface ChangePasswordRequest {
+  currentPassword: string
+  newPassword: string
+}

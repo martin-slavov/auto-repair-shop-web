@@ -91,9 +91,20 @@ function Layout() {
 
   const authArea = user ? (
     <>
-      <span className="min-w-0 max-w-64 truncate text-sm text-background/80" title={user.username}>
+      <NavLink
+        to="/account"
+        onClick={closeMenu}
+        title={user.username}
+        className={({ isActive }) =>
+          cn(
+            'min-w-0 max-w-64 truncate text-sm underline-offset-4 outline-none hover:text-background hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-background',
+            isActive ? 'text-background underline' : 'text-background/80',
+          )
+        }
+      >
+        <span className="sr-only">My account: </span>
         {user.username}
-      </span>
+      </NavLink>
       <Button variant="secondary" onClick={handleLogout}>
         Logout
       </Button>
