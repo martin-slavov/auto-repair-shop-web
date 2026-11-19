@@ -28,9 +28,15 @@ interface VisitDetailsDialogProps {
   open: boolean
   visit: ServiceVisit | null
   onOpenChange: (open: boolean) => void
+  audience?: 'customer' | 'admin'
 }
 
-function VisitDetailsDialog({ open, visit, onOpenChange }: VisitDetailsDialogProps) {
+function VisitDetailsDialog({
+  open,
+  visit,
+  onOpenChange,
+  audience = 'customer',
+}: VisitDetailsDialogProps) {
   const totalHours = visit?.mechanics.reduce((sum, mechanic) => sum + mechanic.hoursWorked, 0) ?? 0
 
   return (
@@ -104,17 +110,19 @@ function VisitDetailsDialog({ open, visit, onOpenChange }: VisitDetailsDialogPro
                 )}
               </section>
 
-              <p className="text-muted-foreground">
-                Parts and prices are listed on the invoice once the visit is invoiced.
-                {visit.status === 'INVOICED' && (
-                  <>
-                    {' '}
-                    <Link to="/invoices" className="font-medium text-primary hover:underline">
-                      Go to invoices
-                    </Link>
-                  </>
-                )}
-              </p>
+              {audience === 'customer' && (
+                <p className="text-muted-foreground">
+                  Parts and prices are listed on the invoice once the visit is invoiced.
+                  {visit.status === 'INVOICED' && (
+                    <>
+                      {' '}
+                      <Link to="/invoices" className="font-medium text-primary hover:underline">
+                        Go to invoices
+                      </Link>
+                    </>
+                  )}
+                </p>
+              )}
             </div>
 
             <DialogFooter showCloseButton />

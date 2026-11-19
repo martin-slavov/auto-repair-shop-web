@@ -10,7 +10,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import FormField from '@/components/FormField'
+import { fieldErrorProps } from '@/lib/fieldErrorProps'
 import { ApiError } from '../../api/client'
 import { createServiceRequest, updateServiceRequest } from '../../api/serviceRequests'
 import { todayIsoDate } from '../../lib/date'
@@ -39,42 +40,6 @@ function toFormValues(request: ServiceRequest | null): FormValues {
     type: request?.type ?? 'SERVICE',
     preferredDate: request?.preferredDate ?? '',
     description: request?.description ?? '',
-  }
-}
-
-interface FieldProps {
-  id: string
-  label: string
-  error?: string
-  hint?: ReactNode
-  children: ReactNode
-}
-
-function Field({ id, label, error, hint, children }: FieldProps) {
-  return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {(error || hint) && (
-        <div className="flex justify-between gap-2 text-sm">
-          {error ? (
-            <p id={`${id}-error`} className="text-destructive">
-              {error}
-            </p>
-          ) : (
-            <span />
-          )}
-          {hint}
-        </div>
-      )}
-    </div>
-  )
-}
-
-function errorProps(id: string, error: string | undefined) {
-  return {
-    'aria-invalid': Boolean(error),
-    'aria-describedby': error ? `${id}-error` : undefined,
   }
 }
 
@@ -222,14 +187,14 @@ function ServiceRequestFormDialog({
             </span>
           </div>
         ) : (
-          <Field id="request-vehicle" label="Vehicle" error={fieldErrors.vehicleId}>
+          <FormField id="request-vehicle" label="Vehicle" error={fieldErrors.vehicleId}>
             <select
               id="request-vehicle"
               required
               value={values.vehicleId}
               onChange={(event) => setValue('vehicleId', event.target.value)}
               className={SELECT_CLASS}
-              {...errorProps('request-vehicle', fieldErrors.vehicleId)}
+              {...fieldErrorProps('request-vehicle', fieldErrors.vehicleId)}
             >
               <option value="" disabled>
                 Select a vehicle
@@ -240,18 +205,18 @@ function ServiceRequestFormDialog({
                 </option>
               ))}
             </select>
-          </Field>
+          </FormField>
         )}
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field id="request-type" label="Type" error={fieldErrors.type}>
+          <FormField id="request-type" label="Type" error={fieldErrors.type}>
             <select
               id="request-type"
               required
               value={values.type}
               onChange={(event) => setValue('type', event.target.value as ServiceRequestType)}
               className={SELECT_CLASS}
-              {...errorProps('request-type', fieldErrors.type)}
+              {...fieldErrorProps('request-type', fieldErrors.type)}
             >
               {TYPE_OPTIONS.map(([value, label]) => (
                 <option key={value} value={value}>
@@ -259,8 +224,8 @@ function ServiceRequestFormDialog({
                 </option>
               ))}
             </select>
-          </Field>
-          <Field
+          </FormField>
+          <FormField
             id="request-preferred-date"
             label="Preferred date (optional)"
             error={fieldErrors.preferredDate}
@@ -271,12 +236,12 @@ function ServiceRequestFormDialog({
               min={todayIsoDate()}
               value={values.preferredDate}
               onChange={(event) => setValue('preferredDate', event.target.value)}
-              {...errorProps('request-preferred-date', fieldErrors.preferredDate)}
+              {...fieldErrorProps('request-preferred-date', fieldErrors.preferredDate)}
             />
-          </Field>
+          </FormField>
         </div>
 
-        <Field
+        <FormField
           id="request-description"
           label="Description"
           error={fieldErrors.description}
@@ -294,9 +259,9 @@ function ServiceRequestFormDialog({
             value={values.description}
             onChange={(event) => setValue('description', event.target.value)}
             className={TEXTAREA_CLASS}
-            {...errorProps('request-description', fieldErrors.description)}
+            {...fieldErrorProps('request-description', fieldErrors.description)}
           />
-        </Field>
+        </FormField>
 
         <DialogFooter>
           {cancelButton}

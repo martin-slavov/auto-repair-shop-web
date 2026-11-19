@@ -41,6 +41,17 @@ export interface ServiceVisit {
   mechanics: MechanicAssignment[]
 }
 
+// ServiceVisitUpdateDTO
+export interface ServiceVisitUpdate {
+  scheduledDate: string
+}
+
+export function sortMechanicsLeadFirst(mechanics: MechanicAssignment[]): MechanicAssignment[] {
+  return [...mechanics].sort(
+    (a, b) => Number(b.roleInVisit === 'LEAD') - Number(a.roleInVisit === 'LEAD'),
+  )
+}
+
 export type ServiceVisitSortField = 'scheduledDate' | 'completedDate' | 'status'
 
 export type ServiceVisitQuery = PageQuery<ServiceVisitSortField> & {
@@ -49,4 +60,5 @@ export type ServiceVisitQuery = PageQuery<ServiceVisitSortField> & {
   scheduledTo?: string
   licensePlate?: string
   vehicleId?: number
+  mechanicId?: number | ''
 }

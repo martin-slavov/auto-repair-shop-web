@@ -9,7 +9,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import FormField from '@/components/FormField'
+import { fieldErrorProps } from '@/lib/fieldErrorProps'
 import { ApiError } from '../../api/client'
 import { approveServiceRequest } from '../../api/serviceRequests'
 import { nowLocalDateTimeMinutes } from '../../lib/date'
@@ -23,34 +24,6 @@ interface FormValues {
 }
 
 const initialValues: FormValues = { mechanicId: '', scheduledDate: '' }
-
-interface FieldProps {
-  id: string
-  label: string
-  error?: string
-  children: ReactNode
-}
-
-function Field({ id, label, error, children }: FieldProps) {
-  return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor={id}>{label}</Label>
-      {children}
-      {error && (
-        <p id={`${id}-error`} className="text-sm text-destructive">
-          {error}
-        </p>
-      )}
-    </div>
-  )
-}
-
-function errorProps(id: string, error: string | undefined) {
-  return {
-    'aria-invalid': Boolean(error),
-    'aria-describedby': error ? `${id}-error` : undefined,
-  }
-}
 
 interface ApproveServiceRequestDialogProps {
   open: boolean
@@ -177,14 +150,14 @@ function ApproveServiceRequestDialog({
           </p>
         )}
 
-        <Field id="approve-mechanic" label="Lead mechanic" error={fieldErrors.mechanicId}>
+        <FormField id="approve-mechanic" label="Lead mechanic" error={fieldErrors.mechanicId}>
           <select
             id="approve-mechanic"
             required
             value={values.mechanicId}
             onChange={(event) => setValue('mechanicId', event.target.value)}
             className={SELECT_CLASS}
-            {...errorProps('approve-mechanic', fieldErrors.mechanicId)}
+            {...fieldErrorProps('approve-mechanic', fieldErrors.mechanicId)}
           >
             <option value="" disabled>
               Select a mechanic
@@ -195,9 +168,13 @@ function ApproveServiceRequestDialog({
               </option>
             ))}
           </select>
-        </Field>
+        </FormField>
 
-        <Field id="approve-scheduled-date" label="Scheduled date" error={fieldErrors.scheduledDate}>
+        <FormField
+          id="approve-scheduled-date"
+          label="Scheduled date"
+          error={fieldErrors.scheduledDate}
+        >
           <Input
             id="approve-scheduled-date"
             type="datetime-local"
@@ -205,9 +182,9 @@ function ApproveServiceRequestDialog({
             min={nowLocalDateTimeMinutes()}
             value={values.scheduledDate}
             onChange={(event) => setValue('scheduledDate', event.target.value)}
-            {...errorProps('approve-scheduled-date', fieldErrors.scheduledDate)}
+            {...fieldErrorProps('approve-scheduled-date', fieldErrors.scheduledDate)}
           />
-        </Field>
+        </FormField>
 
         <DialogFooter>
           {cancelButton}

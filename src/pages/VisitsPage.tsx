@@ -6,11 +6,13 @@ import { Label } from '@/components/ui/label'
 import TablePagination from '@/components/data-table/TablePagination'
 import DataCardList from '@/components/data-table/DataCardList'
 import SortControl, { type SortOption } from '@/components/data-table/SortControl'
+import AdminVisitsView from '@/components/visits/AdminVisitsView'
 import VisitCard from '@/components/visits/VisitCard'
 import VisitDetailsDialog from '@/components/visits/VisitDetailsDialog'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
 import { SELECT_CLASS } from '@/lib/fieldClasses'
 import { getServiceVisits } from '../api/serviceVisits'
+import { useAuth } from '../auth/useAuth'
 import type { SortState } from '../types/api'
 import {
   SERVICE_VISIT_STATUS_LABELS,
@@ -50,6 +52,11 @@ const fetchVisitPage: FetchPage<ServiceVisit, ServiceVisitSortField, VisitFilter
   )
 
 function VisitsPage() {
+  const { user } = useAuth()
+  return user?.role === 'ADMIN' ? <AdminVisitsView /> : <CustomerVisitsView />
+}
+
+function CustomerVisitsView() {
   const table = useDataTable({
     fetchPage: fetchVisitPage,
     initialSort,

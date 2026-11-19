@@ -4,12 +4,18 @@ import type { UserAdmin } from '../types/user'
 
 const PAGE_SIZE = 50
 
-async function loadAllEnabledMechanics(signal: AbortSignal): Promise<UserAdmin[]> {
+async function loadAllMechanics(onlyEnabled: boolean, signal: AbortSignal): Promise<UserAdmin[]> {
   const mechanics: UserAdmin[] = []
   let page = 0
   for (;;) {
     const result = await getUsers(
-      { page, size: PAGE_SIZE, sort: 'username,asc', role: 'MECHANIC', enabled: true },
+      {
+        page,
+        size: PAGE_SIZE,
+        sort: 'username,asc',
+        role: 'MECHANIC',
+        enabled: onlyEnabled ? true : undefined,
+      },
       signal,
     )
     mechanics.push(...result.content)
@@ -18,18 +24,21 @@ async function loadAllEnabledMechanics(signal: AbortSignal): Promise<UserAdmin[]
   }
 }
 
-interface EnabledMechanicsState {
+interface MechanicsState {
   mechanics: UserAdmin[] | null
   error: string | null
 }
 
-export function useEnabledMechanics(enabled: boolean): EnabledMechanicsState {
-  const [state, setState] = useState<EnabledMechanicsState>({ mechanics: null, error: null })
+export function useMechanics(
+  enabled: boolean,
+  { onlyEnabled }: { onlyEnabled: boolean },
+): MechanicsState {
+  const [state, setState] = useState<MechanicsState>({ mechanics: null, error: null })
 
   useEffect(() => {
     if (!enabled) return
     const controller = new AbortController()
-    loadAllEnabledMechanics(controller.signal)
+    loadAllMechanics(onlyEnabled, controller.signal)
       .then((mechanics) => setState({ mechanics, error: null }))
       .catch((err: unknown) => {
         if (controller.signal.aborted) return
@@ -37,7 +46,7 @@ export function useEnabledMechanics(enabled: boolean): EnabledMechanicsState {
         setState({ mechanics: null, error: message })
       })
     return () => controller.abort()
-  }, [enabled])
+  }, [enabled, onlyEnabled])
 
   return state
 }

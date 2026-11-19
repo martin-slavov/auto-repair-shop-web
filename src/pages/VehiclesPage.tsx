@@ -103,11 +103,7 @@ function VehiclesPage() {
   function handleDeleted(vehicle: Vehicle) {
     setDeleteOpen(false)
     setSuccess({ text: `Vehicle ${vehicle.licensePlate} was deleted.` })
-    if (table.rows?.length === 1 && table.page > 0) {
-      table.setPage(table.page - 1)
-    } else {
-      table.refresh()
-    }
+    table.refreshAfterRowRemoved()
   }
 
   const loadError = table.error && `Could not load vehicles: ${table.error}`

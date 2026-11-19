@@ -81,6 +81,14 @@ export function useDataTable<T, S extends string, F extends FilterValues>({
     setReloadKey((prev) => prev + 1)
   }, [])
 
+  function refreshAfterRowRemoved() {
+    if (result.data?.content.length === 1 && page > 0) {
+      setPage(page - 1)
+    } else {
+      refresh()
+    }
+  }
+
   function setPageSize(size: number) {
     setPageSizeState(size)
     setPage(0)
@@ -123,5 +131,6 @@ export function useDataTable<T, S extends string, F extends FilterValues>({
     setFilter,
     clearFilters,
     refresh,
+    refreshAfterRowRemoved,
   }
 }

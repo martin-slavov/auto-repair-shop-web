@@ -30,10 +30,10 @@ function App() {
           <Route element={<RequireRole allowedRoles={['CUSTOMER', 'ADMIN']} />}>
             <Route path="vehicles" element={<VehiclesPage />} />
             <Route path="service-requests" element={<ServiceRequestsPage />} />
+            <Route path="visits" element={<VisitsPage />} />
           </Route>
 
           <Route element={<RequireRole allowedRoles={['CUSTOMER']} />}>
-            <Route path="visits" element={<VisitsPage />} />
             <Route path="invoices" element={<InvoicesPage />} />
             <Route path="invoices/:id" element={<InvoiceViewPage />} />
           </Route>

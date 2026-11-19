@@ -16,7 +16,7 @@ import ServiceRequestFormDialog from '@/components/service-requests/ServiceReque
 import { SELECT_CLASS } from '@/lib/fieldClasses'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
 import { useCustomerVehicles } from '@/hooks/useCustomerVehicles'
-import { useEnabledMechanics } from '@/hooks/useEnabledMechanics'
+import { useMechanics } from '@/hooks/useMechanics'
 import {
   deleteServiceRequest,
   getServiceRequests,
@@ -104,7 +104,7 @@ function ServiceRequestsPage() {
   const [rejectOpen, setRejectOpen] = useState(false)
   const [rejectTarget, setRejectTarget] = useState<ServiceRequest | null>(null)
   const [success, setSuccess] = useState<SuccessMessage | null>(null)
-  const { mechanics, error: mechanicsError } = useEnabledMechanics(isAdmin)
+  const { mechanics, error: mechanicsError } = useMechanics(isAdmin, { onlyEnabled: true })
 
   useEffect(() => {
     if (!success) return
@@ -143,18 +143,10 @@ function ServiceRequestsPage() {
     setRejectOpen(true)
   }
 
-  function refreshAfterRowLeft() {
-    if (table.rows?.length === 1 && table.page > 0) {
-      table.setPage(table.page - 1)
-    } else {
-      table.refresh()
-    }
-  }
-
   function handleDeleted(request: ServiceRequest) {
     setDeleteOpen(false)
     setSuccess({ text: `Service request for ${request.licensePlate} was deleted.` })
-    refreshAfterRowLeft()
+    table.refreshAfterRowRemoved()
   }
 
   function handleDecided(request: ServiceRequest, decision: 'approved' | 'rejected') {
@@ -162,7 +154,7 @@ function ServiceRequestsPage() {
     setRejectOpen(false)
     setSuccess({ text: `Request for ${request.licensePlate} was ${decision}.` })
     if (table.filters.status !== '') {
-      refreshAfterRowLeft()
+      table.refreshAfterRowRemoved()
     } else {
       table.refresh()
     }

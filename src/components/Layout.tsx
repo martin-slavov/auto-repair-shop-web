@@ -50,17 +50,15 @@ function Layout() {
           <NavLink to="/service-requests" className={navLinkClass} onClick={closeMenu}>
             Service requests
           </NavLink>
-        </>
-      )}
-      {isCustomer && (
-        <>
           <NavLink to="/visits" className={navLinkClass} onClick={closeMenu}>
             Visits
           </NavLink>
-          <NavLink to="/invoices" className={navLinkClass} onClick={closeMenu}>
-            Invoices
-          </NavLink>
         </>
+      )}
+      {isCustomer && (
+        <NavLink to="/invoices" className={navLinkClass} onClick={closeMenu}>
+          Invoices
+        </NavLink>
       )}
       {isAdmin && (
         <NavLink to="/admin/users" className={navLinkClass} onClick={closeMenu}>
