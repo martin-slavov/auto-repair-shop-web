@@ -14,21 +14,12 @@ import { fieldErrorProps } from '@/lib/fieldErrorProps'
 import { TEXTAREA_CLASS } from '@/lib/fieldClasses'
 import { ApiError } from '../../api/client'
 import { completeServiceVisit } from '../../api/serviceVisits'
+import { decimalMax, validateDecimal } from '../../lib/decimal'
 import type { ServiceVisit } from '../../types/serviceVisit'
 
 const NOTES_MAX = 5000
-const HOURS_MAX = 999.99
-
-function validateHours(value: string): string | null {
-  if (value.trim() === '') return 'Hours worked is required.'
-  if (!/^\d{1,3}(\.\d{1,2})?$/.test(value.trim())) {
-    return 'Hours worked must be a number with up to 3 digits and 2 decimal places.'
-  }
-  const hours = Number(value)
-  if (hours <= 0) return 'Hours worked must be greater than zero.'
-  if (hours > HOURS_MAX) return `Hours worked must not exceed ${HOURS_MAX}.`
-  return null
-}
+const HOURS_DIGITS = 3
+const HOURS_MAX = decimalMax(HOURS_DIGITS)
 
 interface CompleteVisitDialogProps {
   open: boolean
@@ -82,7 +73,10 @@ function CompleteVisitDialog({
     if (technicalNotes.trim() === '') {
       formErrors.technicalNotes = 'Technical notes are required.'
     }
-    const hoursError = validateHours(hoursWorked)
+    const hoursError = validateDecimal(hoursWorked, {
+      label: 'Hours worked',
+      integerDigits: HOURS_DIGITS,
+    })
     if (hoursError) {
       formErrors.hoursWorked = hoursError
     }

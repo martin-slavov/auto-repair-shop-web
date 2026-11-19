@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import Layout from './components/Layout'
 import PageContainer from './components/PageContainer'
 import RequireRole from './components/RequireRole'
@@ -11,7 +11,10 @@ import ServiceRequestsPage from './pages/ServiceRequestsPage'
 import VisitsPage from './pages/VisitsPage'
 import InvoicesPage from './pages/InvoicesPage'
 import InvoiceViewPage from './pages/InvoiceViewPage'
+import AdminLayout from './components/admin/AdminLayout'
 import AdminUsersPage from './pages/AdminUsersPage'
+import AdminCatalogPage from './pages/AdminCatalogPage'
+import AdminPartsPage from './pages/AdminPartsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import UiPreviewPage from './pages/UiPreviewPage'
 
@@ -42,7 +45,12 @@ function App() {
           </Route>
 
           <Route element={<RequireRole allowedRoles={['ADMIN']} />}>
-            <Route path="admin/users" element={<AdminUsersPage />} />
+            <Route path="admin" element={<AdminLayout />}>
+              <Route index element={<Navigate to="/admin/users" replace />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="catalog" element={<AdminCatalogPage />} />
+              <Route path="parts" element={<AdminPartsPage />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

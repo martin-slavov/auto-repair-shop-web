@@ -8,6 +8,7 @@ import ConfirmActionDialog from '@/components/ConfirmActionDialog'
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog'
 import { useDataTable, type FetchPage } from '@/hooks/useDataTable'
 import { useMechanics } from '@/hooks/useMechanics'
+import { isDateRangeInvalid, useRangeFilter } from '@/hooks/useRangeFilter'
 import { SELECT_CLASS } from '@/lib/fieldClasses'
 import { deleteServiceVisit, getServiceVisits, invoiceServiceVisit } from '../../api/serviceVisits'
 import type { SortState } from '../../types/api'
@@ -61,17 +62,6 @@ const fetchAdminVisitPage: FetchPage<ServiceVisit, ServiceVisitSortField, AdminV
     signal,
   )
 
-interface DateRange {
-  from: string
-  to: string
-}
-
-const emptyDateRange: DateRange = { from: '', to: '' }
-
-function isInvalidRange({ from, to }: DateRange): boolean {
-  return from !== '' && to !== '' && from > to
-}
-
 function AdminVisitsView() {
   const table = useDataTable({
     fetchPage: fetchAdminVisitPage,
@@ -80,7 +70,10 @@ function AdminVisitsView() {
   })
   const { mechanics, error: mechanicsError } = useMechanics(true, { onlyEnabled: false })
 
-  const [dateRange, setDateRange] = useState<DateRange>(emptyDateRange)
+  const dateRange = useRangeFilter(isDateRangeInvalid, ({ from, to }) => {
+    table.setFilter('scheduledFrom', from)
+    table.setFilter('scheduledTo', to)
+  })
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [detailsVisit, setDetailsVisit] = useState<ServiceVisit | null>(null)
   const [rescheduleOpen, setRescheduleOpen] = useState(false)
@@ -98,19 +91,11 @@ function AdminVisitsView() {
     return () => clearTimeout(timer)
   }, [success])
 
-  const dateRangeInvalid = isInvalidRange(dateRange)
-  const canClearFilters = table.hasActiveFilters || dateRange.from !== '' || dateRange.to !== ''
-
-  function changeDate(key: keyof DateRange, value: string) {
-    const next = { ...dateRange, [key]: value }
-    setDateRange(next)
-    if (isInvalidRange(next)) return
-    table.setFilter('scheduledFrom', next.from)
-    table.setFilter('scheduledTo', next.to)
-  }
+  const dateRangeInvalid = dateRange.invalid
+  const canClearFilters = table.hasActiveFilters || !dateRange.isEmpty
 
   function clearFilters() {
-    setDateRange(emptyDateRange)
+    dateRange.clear()
     table.clearFilters()
   }
 
@@ -240,8 +225,8 @@ function AdminVisitsView() {
                 <Input
                   id="visits-scheduled-from"
                   type="date"
-                  value={dateRange.from}
-                  onChange={(event) => changeDate('from', event.target.value)}
+                  value={dateRange.range.from}
+                  onChange={(event) => dateRange.change('from', event.target.value)}
                   aria-invalid={dateRangeInvalid}
                   aria-describedby={dateRangeInvalid ? DATE_RANGE_ERROR_ID : undefined}
                 />
@@ -251,8 +236,8 @@ function AdminVisitsView() {
                 <Input
                   id="visits-scheduled-to"
                   type="date"
-                  value={dateRange.to}
-                  onChange={(event) => changeDate('to', event.target.value)}
+                  value={dateRange.range.to}
+                  onChange={(event) => dateRange.change('to', event.target.value)}
                   aria-invalid={dateRangeInvalid}
                   aria-describedby={dateRangeInvalid ? DATE_RANGE_ERROR_ID : undefined}
                 />

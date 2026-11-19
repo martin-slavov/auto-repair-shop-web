@@ -67,7 +67,7 @@ function Layout() {
         </NavLink>
       )}
       {isAdmin && (
-        <NavLink to="/admin/users" className={navLinkClass} onClick={closeMenu}>
+        <NavLink to="/admin" className={navLinkClass} onClick={closeMenu}>
           Admin
         </NavLink>
       )}
