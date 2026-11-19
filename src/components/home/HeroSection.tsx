@@ -20,7 +20,7 @@ function HeroSection() {
         aria-hidden="true"
       />
 
-      <div className="relative mx-auto max-w-5xl px-4 py-24 md:py-32">
+      <div className="relative mx-auto max-w-5xl px-4 py-24 md:pt-24 md:pb-32">
         <div className="max-w-2xl">
           <p className="flex items-center gap-2 font-heading text-lg font-semibold tracking-wide text-primary uppercase">
             <span className="h-5 w-1.5 bg-primary" aria-hidden="true" />

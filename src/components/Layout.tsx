@@ -4,7 +4,6 @@ import { Menu, X } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuth } from '../auth/useAuth'
-import { USER_ROLE_LABELS } from '../types/user'
 
 const onDarkGhost =
   'text-background hover:bg-background/10 hover:text-background aria-expanded:bg-background/10 aria-expanded:text-background'
@@ -92,8 +91,8 @@ function Layout() {
 
   const authArea = user ? (
     <>
-      <span className="max-w-32 truncate text-sm text-background/80" title={user.username}>
-        {user.username} ({USER_ROLE_LABELS[user.role]})
+      <span className="min-w-0 max-w-64 truncate text-sm text-background/80" title={user.username}>
+        {user.username}
       </span>
       <Button variant="secondary" onClick={handleLogout}>
         Logout
@@ -116,8 +115,8 @@ function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-foreground text-background">
-        <div className="mx-auto flex h-16 w-full max-w-5xl items-center gap-6 px-4">
+      <header className="border-b border-background/10 bg-foreground text-background">
+        <div className="flex h-16 w-full items-center gap-6 px-6 lg:px-8">
           <Link
             to="/"
             onClick={closeMenu}
@@ -129,7 +128,7 @@ function Layout() {
 
           <nav className="hidden items-center gap-6 lg:flex">{links}</nav>
 
-          <div className="ml-auto hidden items-center gap-3 lg:flex">{authArea}</div>
+          <div className="ml-auto hidden min-w-0 items-center gap-3 lg:flex">{authArea}</div>
 
           <Button
             variant="ghost"
@@ -145,7 +144,7 @@ function Layout() {
         </div>
 
         {menuOpen && (
-          <div className="border-t border-background/10 px-4 py-4 lg:hidden">
+          <div className="border-t border-background/10 px-6 py-4 lg:hidden">
             <nav className="flex flex-col items-start gap-3">{links}</nav>
             <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-background/10 pt-4">
               {authArea}
@@ -159,7 +158,7 @@ function Layout() {
       </main>
 
       <footer className="bg-foreground text-background/70">
-        <div className="mx-auto w-full max-w-5xl px-4 py-6 text-sm">
+        <div className="w-full px-6 py-6 text-sm lg:px-8">
           © {new Date().getFullYear()} Auto Repair Shop
         </div>
       </footer>
