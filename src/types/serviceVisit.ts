@@ -1,4 +1,5 @@
 import type { PageQuery } from './api'
+import type { ServiceRequestType } from './serviceRequest'
 
 export type ServiceVisitStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'INVOICED'
 
@@ -28,6 +29,7 @@ export interface MechanicAssignment {
   mechanicName: string
   roleInVisit: MechanicRole
   hoursWorked: number
+  mechanicId: number | null
 }
 
 // ServiceVisitResponseDTO
@@ -39,11 +41,19 @@ export interface ServiceVisit {
   technicalNotes: string | null
   licensePlate: string
   mechanics: MechanicAssignment[]
+  requestType: ServiceRequestType | null
+  requestDescription: string | null
+  vehicleManufacturer: string
+  vehicleModel: string
 }
 
 // ServiceVisitUpdateDTO
 export interface ServiceVisitUpdate {
   scheduledDate: string
+}
+
+export function visitVehicleName(visit: ServiceVisit): string {
+  return `${visit.vehicleManufacturer} ${visit.vehicleModel}`
 }
 
 export function sortMechanicsLeadFirst(mechanics: MechanicAssignment[]): MechanicAssignment[] {
@@ -54,6 +64,12 @@ export function sortMechanicsLeadFirst(mechanics: MechanicAssignment[]): Mechani
 
 export function currentMechanicRole(visit: ServiceVisit): MechanicRole | null {
   return visit.mechanics.length === 1 ? visit.mechanics[0].roleInVisit : null
+}
+
+// AvailableSlotDTO
+export interface AvailableSlot {
+  start: string
+  available: boolean
 }
 
 // CompleteVisitDTO

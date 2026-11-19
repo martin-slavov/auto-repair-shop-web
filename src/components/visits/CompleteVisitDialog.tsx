@@ -16,6 +16,7 @@ import { ApiError } from '../../api/client'
 import { completeServiceVisit } from '../../api/serviceVisits'
 import { decimalMax, validateDecimal } from '../../lib/decimal'
 import type { ServiceVisit } from '../../types/serviceVisit'
+import VisitJobSummary from './VisitJobSummary'
 
 const NOTES_MAX = 5000
 const HOURS_DIGITS = 3
@@ -118,6 +119,7 @@ function CompleteVisitDialog({
               `Add your technical notes and hours for the visit for ${visit.licensePlate}. The visit will move to Completed.`}
           </DialogDescription>
         </DialogHeader>
+        {visit && <VisitJobSummary visit={visit} />}
         <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           {error && (
             <p

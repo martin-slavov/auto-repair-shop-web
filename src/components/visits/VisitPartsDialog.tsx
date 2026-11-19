@@ -29,6 +29,7 @@ import { formatMoney } from '../../lib/money'
 import type { PartCatalog } from '../../types/part'
 import type { ServiceVisit, VisitPart } from '../../types/serviceVisit'
 import PartPicker from './PartPicker'
+import VisitJobSummary from './VisitJobSummary'
 
 const QUANTITY_MAX = 2147483647
 const QUANTITY_ERROR = 'Quantity must be a whole number greater than zero.'
@@ -219,6 +220,8 @@ function VisitPartsDialog({ open, visit, onOpenChange, onChanged }: VisitPartsDi
             Parts used on this visit. Prices are set when a part is added.
           </DialogDescription>
         </DialogHeader>
+
+        {visit && <VisitJobSummary visit={visit} />}
 
         <div className="flex max-h-[70vh] flex-col gap-6 overflow-y-auto px-1 [scrollbar-gutter:stable]">
           {error && (

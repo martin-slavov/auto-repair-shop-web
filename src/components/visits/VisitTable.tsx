@@ -10,9 +10,9 @@ import {
 } from '../../types/serviceVisit'
 import {
   completedDateColumn,
-  licensePlateColumn,
   scheduledDateColumn,
   statusColumn,
+  vehicleColumn,
 } from './visitColumns'
 
 function mechanicsText(visit: ServiceVisit): string {
@@ -48,7 +48,7 @@ function VisitTable({
 }: VisitTableProps) {
   const columns: DataTableColumn<ServiceVisit, ServiceVisitSortField>[] = [
     scheduledDateColumn,
-    licensePlateColumn,
+    vehicleColumn,
     statusColumn,
     {
       id: 'mechanics',

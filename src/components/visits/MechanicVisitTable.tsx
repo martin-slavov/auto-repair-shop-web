@@ -2,17 +2,17 @@ import { CircleCheck, Info, Play, Wrench } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
 import type { SortState } from '../../types/api'
+import { SERVICE_REQUEST_TYPE_LABELS } from '../../types/serviceRequest'
 import {
   currentMechanicRole,
-  MECHANIC_ROLE_LABELS,
   type ServiceVisit,
   type ServiceVisitSortField,
 } from '../../types/serviceVisit'
 import {
   completedDateColumn,
-  licensePlateColumn,
   scheduledDateColumn,
   statusColumn,
+  vehicleColumn,
 } from './visitColumns'
 
 interface MechanicVisitTableProps {
@@ -42,16 +42,29 @@ function MechanicVisitTable({
 }: MechanicVisitTableProps) {
   const columns: DataTableColumn<ServiceVisit, ServiceVisitSortField>[] = [
     scheduledDateColumn,
-    { ...licensePlateColumn, className: 'w-full font-medium' },
-    statusColumn,
+    vehicleColumn,
     {
-      id: 'role',
-      header: 'Your role',
-      cell: (visit) => {
-        const role = currentMechanicRole(visit)
-        return role ? MECHANIC_ROLE_LABELS[role] : '—'
-      },
+      id: 'work',
+      header: 'Work',
+      className: 'w-full min-w-40 whitespace-normal',
+      cell: (visit) => (
+        <div className="flex flex-col">
+          {visit.requestType && (
+            <span className="text-xs text-muted-foreground">
+              {SERVICE_REQUEST_TYPE_LABELS[visit.requestType]}
+            </span>
+          )}
+          {visit.requestDescription ? (
+            <span title={visit.requestDescription} className="line-clamp-2 wrap-anywhere">
+              {visit.requestDescription}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
+        </div>
+      ),
     },
+    statusColumn,
     completedDateColumn,
     {
       id: 'actions',

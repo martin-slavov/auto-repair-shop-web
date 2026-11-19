@@ -1,8 +1,8 @@
 import { Info } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatDateTime } from '../../lib/date'
-import type { ServiceVisit } from '../../types/serviceVisit'
+import { visitVehicleName, type ServiceVisit } from '../../types/serviceVisit'
 import VisitStatusStepper from './VisitStatusStepper'
 
 interface VisitCardProps {
@@ -15,9 +15,12 @@ function VisitCard({ visit, onDetails }: VisitCardProps) {
     <Card size="sm">
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="w-fit rounded-md border-2 border-foreground bg-background px-2 py-0.5 font-bold tracking-widest uppercase">
-            {visit.licensePlate}
-          </span>
+          <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <span className="w-fit rounded-md border-2 border-foreground bg-background px-2 py-0.5 font-bold tracking-widest uppercase">
+              {visit.licensePlate}
+            </span>
+            <CardTitle className="text-lg wrap-anywhere">{visitVehicleName(visit)}</CardTitle>
+          </div>
           <Button variant="outline" size="sm" onClick={() => onDetails(visit)}>
             <Info aria-hidden="true" />
             Details<span className="sr-only"> of the visit for {visit.licensePlate}</span>
@@ -35,6 +38,11 @@ function VisitCard({ visit, onDetails }: VisitCardProps) {
             </div>
           )}
         </dl>
+        {visit.requestDescription && (
+          <p title={visit.requestDescription} className="line-clamp-2 wrap-anywhere">
+            {visit.requestDescription}
+          </p>
+        )}
       </CardHeader>
       <CardContent>
         <VisitStatusStepper status={visit.status} />

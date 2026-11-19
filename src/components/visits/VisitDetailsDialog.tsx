@@ -19,9 +19,11 @@ import {
 import { useVisitParts } from '@/hooks/useVisitParts'
 import { formatDateTime } from '../../lib/date'
 import { formatMoney } from '../../lib/money'
+import { SERVICE_REQUEST_TYPE_LABELS } from '../../types/serviceRequest'
 import {
   MECHANIC_ROLE_LABELS,
   SERVICE_VISIT_STATUS_LABELS,
+  visitVehicleName,
   type ServiceVisit,
 } from '../../types/serviceVisit'
 import VisitStatusStepper from './VisitStatusStepper'
@@ -52,7 +54,7 @@ function VisitDetailsDialog({
             <DialogHeader>
               <DialogTitle>Visit for {visit.licensePlate}</DialogTitle>
               <DialogDescription>
-                Status: {SERVICE_VISIT_STATUS_LABELS[visit.status]}
+                {visitVehicleName(visit)} · Status: {SERVICE_VISIT_STATUS_LABELS[visit.status]}
               </DialogDescription>
             </DialogHeader>
 
@@ -60,6 +62,20 @@ function VisitDetailsDialog({
               <div className="px-1 pt-2">
                 <VisitStatusStepper status={visit.status} />
               </div>
+
+              <section className="flex flex-col gap-2">
+                <h2 className="text-lg">Work to do</h2>
+                {visit.requestType && (
+                  <p className="text-muted-foreground">
+                    {SERVICE_REQUEST_TYPE_LABELS[visit.requestType]}
+                  </p>
+                )}
+                {visit.requestDescription ? (
+                  <p className="whitespace-pre-line wrap-anywhere">{visit.requestDescription}</p>
+                ) : (
+                  <p className="text-muted-foreground">No description available.</p>
+                )}
+              </section>
 
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
                 <dt className="text-muted-foreground">Scheduled</dt>

@@ -1,6 +1,10 @@
 import type { DataTableColumn } from '@/components/data-table/DataTable'
 import { formatDateTime } from '../../lib/date'
-import type { ServiceVisit, ServiceVisitSortField } from '../../types/serviceVisit'
+import {
+  visitVehicleName,
+  type ServiceVisit,
+  type ServiceVisitSortField,
+} from '../../types/serviceVisit'
 import VisitStatusBadge from './VisitStatusBadge'
 
 type VisitColumn = DataTableColumn<ServiceVisit, ServiceVisitSortField>
@@ -13,11 +17,16 @@ export const scheduledDateColumn: VisitColumn = {
   cell: (visit) => formatDateTime(visit.scheduledDate),
 }
 
-export const licensePlateColumn: VisitColumn = {
-  id: 'licensePlate',
-  header: 'License plate',
-  className: 'font-medium',
-  cell: (visit) => visit.licensePlate,
+export const vehicleColumn: VisitColumn = {
+  id: 'vehicle',
+  header: 'Vehicle',
+  className: 'min-w-28 whitespace-normal',
+  cell: (visit) => (
+    <div className="flex flex-col">
+      <span className="font-medium whitespace-nowrap">{visit.licensePlate}</span>
+      <span className="text-xs text-muted-foreground wrap-anywhere">{visitVehicleName(visit)}</span>
+    </div>
+  ),
 }
 
 export const statusColumn: VisitColumn = {
