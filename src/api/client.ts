@@ -4,13 +4,26 @@ import { getToken } from '../auth/tokenStorage'
 export class ApiError extends Error {
   status: number
   fieldErrors: Record<string, string>
+  retryAfter?: number
 
-  constructor(message: string, status: number, fieldErrors: Record<string, string> = {}) {
+  constructor(
+    message: string,
+    status: number,
+    fieldErrors: Record<string, string> = {},
+    retryAfter?: number,
+  ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.fieldErrors = fieldErrors
+    this.retryAfter = retryAfter
   }
+}
+
+function parseRetryAfter(value: string | null): number | undefined {
+  if (!value) return undefined
+  const seconds = Number(value)
+  return Number.isFinite(seconds) && seconds >= 0 ? seconds : undefined
 }
 
 let unauthorizedHandler: (() => void) | null = null
@@ -54,7 +67,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     } catch {
       // The body was not JSON; keep the generic message.
     }
-    throw new ApiError(message, response.status, fieldErrors)
+    throw new ApiError(
+      message,
+      response.status,
+      fieldErrors,
+      parseRetryAfter(response.headers.get('Retry-After')),
+    )
   }
 
   const text = await response.text()

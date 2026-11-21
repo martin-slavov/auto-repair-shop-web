@@ -4,6 +4,7 @@ import { Menu, X } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useAuth } from '../auth/useAuth'
+import ChatWidget from './chat/ChatWidget'
 
 const onDarkGhost =
   'text-background hover:bg-background/10 hover:text-background aria-expanded:bg-background/10 aria-expanded:text-background'
@@ -173,6 +174,8 @@ function Layout() {
           © {new Date().getFullYear()} Auto Repair Shop
         </div>
       </footer>
+
+      <ChatWidget />
     </div>
   )
 }
