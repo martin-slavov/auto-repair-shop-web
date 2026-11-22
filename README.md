@@ -1,6 +1,6 @@
 # Auto Repair Shop – Web
 
-A React + TypeScript frontend for the [auto-repair-shop-api](https://github.com/martin-slavov/auto-repair-shop-api)
+The React + TypeScript web client for the [auto-repair-shop-api](https://github.com/martin-slavov/auto-repair-shop-api)
 Spring Boot API. Customers register their vehicles and request services, admins approve requests and plan
 visits, mechanics carry out the work and record the parts used, and the shop issues itemised invoices.
 All data and all permission checks come from the API; this app is the user interface on top of it.
@@ -16,17 +16,32 @@ All data and all permission checks come from the API; this app is the user inter
 
 ## Features by role
 
+**Everyone**
+
+- Chat assistant: a chat button on every page opens a panel where visitors can ask about the services, prices
+  and opening hours. Messages are sent to the API (`POST /api/chat`) together with the last few messages of
+  the conversation. Messages are limited to 500 characters, and when the API rate-limits a user the widget
+  waits for the time the server gives before allowing the next message
+
 **Guest**
 
 - Home page with a preview of the services
 - Services catalog with name and price filters, sorting and pagination
 - Register (always creates a Customer account) and log in
 
+**Every logged-in user (Customer, Mechanic, Admin)**
+
+- My account (`/account`, opened from the username in the header): see the own profile (username, role,
+  email, first and last name), edit the email and name, and change the password (current password, then a
+  new password of at least 8 characters, typed twice). The username and role cannot be changed
+
 **Customer**
 
 - Vehicles: add, edit and delete own vehicles, with filters
-- Service requests: create a request for an own vehicle, edit or delete it while it is pending
-- Visits: see the visits for own vehicles and their details
+- Service requests: create a request for an own vehicle, edit or delete it while it is pending. A request can
+  have an optional preferred date (a weekday, from today up to 90 days ahead) and a preferred time (Morning,
+  Afternoon or Any time)
+- Visits: see the visits for own vehicles and their details, including the preferred date and time
 - Invoices: list own invoices with filters and open a printable, itemised invoice (parts and labour)
 
 **Mechanic**
@@ -37,11 +52,16 @@ All data and all permission checks come from the API; this app is the user inter
 **Admin**
 
 - Vehicles: see, edit and delete all vehicles
-- Service requests: see all requests, approve (assign mechanics and a date) or reject them
-- Visits: see all visits with filters, reschedule or delete scheduled visits, view parts, create the invoice
+- Service requests: see all requests with the customer's preferred date and time, approve (assign the lead
+  mechanic and pick a free time slot on a weekday) or reject them
+- Visits: see all visits with filters and the preferred date and time, reschedule (pick a free time slot) or
+  delete scheduled visits, add or remove up to 3 assistant mechanics on scheduled or in-progress visits, view
+  parts, create the invoice
 - Invoices: list all invoices with filters, mark as paid, delete unpaid invoices, open the printable invoice
 - Admin area:
-  - Users: create mechanic and admin accounts, enable or disable users
+  - Users: create mechanic and admin accounts, edit a user's email and name, enable or disable users, and
+    delete users (not the own account; users with vehicles, requests, visits or invoices cannot be deleted
+    and should be disabled instead)
   - Catalog: add, edit, delete and hide services
   - Parts: add, edit, delete and hide parts
   - Rights: an overview of what each role can do
@@ -59,6 +79,7 @@ All data and all permission checks come from the API; this app is the user inter
 | `/visits` | Visits (view depends on the role) | Customer, Mechanic, Admin |
 | `/invoices` | Invoices (view depends on the role) | Customer, Admin |
 | `/invoices/:id` | Printable invoice | Customer (own), Admin |
+| `/account` | My account: profile, profile editing, password change | Customer, Mechanic, Admin |
 | `/admin` | Redirects to `/admin/users` | Admin |
 | `/admin/users` | Users | Admin |
 | `/admin/catalog` | Services catalog management | Admin |
@@ -121,15 +142,16 @@ src/
 │   ├── data-table/        Table, card list, sort control and pagination
 │   ├── admin/             Admin area sub-navigation
 │   ├── catalog/           Admin services table and service form
+│   ├── chat/              Chat assistant widget
 │   ├── home/              Home page sections
 │   ├── invoices/          Invoice table, admin invoices view, printable invoice
 │   ├── parts/             Admin parts table and part form
 │   ├── service-requests/  Request table, cards, form, approve dialog, status badge
-│   ├── users/             Users table, create user dialog, badges
+│   ├── users/             Users table, create and edit user dialogs, profile fields, badges
 │   ├── vehicles/          Vehicle table, cards and form
-│   └── visits/            Visit views, tables, cards, dialogs, part picker, status
+│   └── visits/            Visit views, tables, cards, dialogs, slot and part pickers, status
 ├── hooks/                 Reusable hooks (table state, range filters, document title, data loading)
-├── lib/                   Helpers (dates, money, decimals, passwords, field classes, rights data)
+├── lib/                   Helpers (dates, money, decimals, passwords, profile, field classes, rights data)
 ├── pages/                 One component per route
 ├── types/                 TypeScript types matching the API DTOs
 ├── App.tsx                Route definitions with role guards
@@ -143,14 +165,16 @@ src/
 ```
 src/
 ├── api/
-│   ├── adminUsers.ts                        List, create, enable and disable users
+│   ├── adminUsers.ts                        List, create, edit, enable, delete users
 │   ├── auth.ts                              Login and register requests
 │   ├── catalog.ts                           Service catalog requests
+│   ├── chat.ts                              Sends a message to the chat assistant
 │   ├── client.ts                            Fetch wrapper: token, errors, query strings
 │   ├── invoices.ts                          List, view, pay and delete invoices
 │   ├── parts.ts                             Public and admin parts requests
 │   ├── serviceRequests.ts                   Request CRUD, approve and reject
-│   ├── serviceVisits.ts                     Visit actions and visit parts
+│   ├── serviceVisits.ts                     Visit actions, free slots, assistants, parts
+│   ├── users.ts                             Own profile, profile update, password change
 │   └── vehicles.ts                          Vehicle CRUD requests
 ├── auth/
 │   ├── AuthContext.ts                       Auth context and its type
@@ -186,6 +210,8 @@ src/
 │   ├── catalog/
 │   │   ├── AdminCatalogTable.tsx            Admin services table with actions
 │   │   └── CatalogItemFormDialog.tsx        Add or edit a service
+│   ├── chat/
+│   │   └── ChatWidget.tsx                   Floating chat with the shop assistant
 │   ├── home/
 │   │   ├── CallToAction.tsx                 "View services" banner
 │   │   ├── FeaturesSection.tsx              "Why choose us" feature list
@@ -207,9 +233,11 @@ src/
 │   │   └── ServiceRequestTable.tsx          Admin requests table with actions
 │   ├── users/
 │   │   ├── CreateUserDialog.tsx             Create a mechanic or admin
+│   │   ├── EditUserDialog.tsx               Admin: edit a user's email and name
+│   │   ├── ProfileFields.tsx                Email, first and last name fields
 │   │   ├── UserEnabledBadge.tsx             Enabled / Disabled badge
 │   │   ├── UserRoleBadge.tsx                User role badge
-│   │   └── UserTable.tsx                    Users table with enable toggle
+│   │   └── UserTable.tsx                    Users table: edit, enable, delete
 │   ├── vehicles/
 │   │   ├── VehicleCard.tsx                  Customer's vehicle card
 │   │   ├── VehicleCardGrid.tsx              Grid of vehicle cards
@@ -222,9 +250,12 @@ src/
 │       ├── MechanicVisitTable.tsx           Mechanic visits table with actions
 │       ├── PartPicker.tsx                   Search-as-you-type part selector
 │       ├── RescheduleVisitDialog.tsx        Change a visit's scheduled date
+│       ├── SlotPicker.tsx                   Day input and free time slot buttons
 │       ├── VisitCard.tsx                    Customer's visit card with progress
 │       ├── visitColumns.tsx                 Shared visit table columns
 │       ├── VisitDetailsDialog.tsx           Visit details, mechanics and parts
+│       ├── VisitJobSummary.tsx              Vehicle and request summary of a visit
+│       ├── VisitMechanicsDialog.tsx         Add and remove assistant mechanics
 │       ├── VisitPartsDialog.tsx             Add, change and remove parts
 │       ├── VisitStatusBadge.tsx             Visit status badge
 │       ├── VisitStatusStepper.tsx           Visit progress steps
@@ -237,15 +268,17 @@ src/
 │   ├── useRangeFilter.ts                    From/to filter with validation
 │   └── useVisitParts.ts                     Loads and reloads a visit's parts
 ├── lib/
-│   ├── date.ts                              Today, now and date formatting
+│   ├── date.ts                              Dates, weekdays, preferred date and time
 │   ├── decimal.ts                           Validates price and hours inputs
 │   ├── fieldClasses.ts                      Classes for selects and textareas
 │   ├── fieldErrorProps.ts                   ARIA attributes for field errors
 │   ├── money.ts                             Formats amounts with two decimals
 │   ├── password.ts                          Password length and match check
+│   ├── profile.ts                           Profile validation and API error mapping
 │   ├── rights.ts                            Data for the rights overview
 │   └── utils.ts                             Re-exports the cn class helper
 ├── pages/
+│   ├── AccountPage.tsx                      My account: profile, edit, password
 │   ├── AdminCatalogPage.tsx                 Admin services management
 │   ├── AdminPartsPage.tsx                   Admin parts management
 │   ├── AdminRightsPage.tsx                  Role rights overview table
@@ -265,11 +298,12 @@ src/
 │   ├── api.ts                               Paging, sorting and error types
 │   ├── auth.ts                              Roles, auth user, login, register
 │   ├── catalog.ts                           Service catalog types and query
+│   ├── chat.ts                              Chat message, request and response
 │   ├── invoice.ts                           Invoice, part line and query
 │   ├── part.ts                              Part types and queries
-│   ├── serviceRequest.ts                    Request types, labels and query
-│   ├── serviceVisit.ts                      Visit, mechanic and part types
-│   ├── user.ts                              Admin user types and role labels
+│   ├── serviceRequest.ts                    Request types, labels, preferred time
+│   ├── serviceVisit.ts                      Visit, mechanic, slot and part types
+│   ├── user.ts                              User, profile and password types
 │   └── vehicle.ts                           Vehicle types and query
 ├── App.tsx                                  Routes with role guards
 ├── index.css                                Tailwind setup, theme tokens, fonts
@@ -314,6 +348,12 @@ folder describes the data the API sends and receives, so every layer works with 
 - `VITE_API_BASE_URL` is read at build time and written into the JavaScript bundle. Set it before building,
   and rebuild when the API address changes.
 - Add the production origin of the frontend to the backend's `APP_CORS_ALLOWED_ORIGINS`.
+
 ## Backend
 
-The API for this frontend: [martin-slavov/auto-repair-shop-api](https://github.com/martin-slavov/auto-repair-shop-api)
+This app is the web client for the API repository:
+[martin-slavov/auto-repair-shop-api](https://github.com/martin-slavov/auto-repair-shop-api)
+
+## Author
+
+Martin Slavov – [github.com/martin-slavov](https://github.com/martin-slavov)
