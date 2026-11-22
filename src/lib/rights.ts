@@ -31,8 +31,16 @@ export const RIGHTS: RightsGroup[] = [
         capability: 'Register an account (creates a Customer)',
         access: access(true, false, false, false),
       },
+      {
+        capability: 'View and edit own profile (email, first and last name)',
+        access: access(false, true, true, true),
+      },
       { capability: 'Change own password', access: access(false, true, true, true) },
     ],
+  },
+  {
+    area: 'Chat assistant',
+    rows: [{ capability: 'Use the chat assistant', access: access(true, true, true, true) }],
   },
   {
     area: 'Services catalog',
@@ -74,6 +82,10 @@ export const RIGHTS: RightsGroup[] = [
         capability: 'Edit or delete a pending request',
         access: access(false, 'own only', false, true),
       },
+      {
+        capability: 'Set a preferred date and time on a request',
+        access: access(false, 'pending request', false, 'pending request'),
+      },
       { capability: 'Approve or reject a request', access: access(false, false, false, true) },
     ],
   },
@@ -84,6 +96,14 @@ export const RIGHTS: RightsGroup[] = [
       {
         capability: 'Reschedule or delete a scheduled visit',
         access: access(false, false, false, true),
+      },
+      {
+        capability: "View a mechanic's free time slots",
+        access: access(false, false, false, true),
+      },
+      {
+        capability: 'Add or remove assistant mechanics (up to 3)',
+        access: access(false, false, false, 'scheduled or in progress'),
       },
       { capability: 'Start a visit', access: access(false, false, 'assigned only', false) },
       { capability: 'Add parts to a visit', access: access(false, false, 'assigned only', false) },
@@ -115,8 +135,16 @@ export const RIGHTS: RightsGroup[] = [
         access: access(false, false, false, true),
       },
       {
+        capability: "Edit a user's email and name",
+        access: access(false, false, false, true),
+      },
+      {
         capability: 'Enable or disable users',
         access: access(false, false, false, 'not own account'),
+      },
+      {
+        capability: 'Delete a user',
+        access: access(false, false, false, 'not own, no related data'),
       },
     ],
   },
