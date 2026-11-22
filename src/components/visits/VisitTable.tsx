@@ -1,6 +1,7 @@
 import { CalendarClock, Info, Receipt, Trash2, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import DataTable, { type DataTableColumn } from '@/components/data-table/DataTable'
+import { formatDateTime, formatPreferred } from '../../lib/date'
 import type { SortState } from '../../types/api'
 import {
   MECHANIC_ROLE_LABELS,
@@ -43,7 +44,20 @@ function VisitTable({
   onInvoice,
 }: VisitTableProps) {
   const columns: DataTableColumn<ServiceVisit, ServiceVisitSortField>[] = [
-    scheduledDateColumn,
+    {
+      ...scheduledDateColumn,
+      className: 'min-w-32 whitespace-normal tabular-nums',
+      cell: (visit) => (
+        <div className="flex flex-col">
+          <span className="whitespace-nowrap">{formatDateTime(visit.scheduledDate)}</span>
+          <span className="text-xs text-muted-foreground">
+            {visit.preferredDate
+              ? `Preferred: ${formatPreferred(visit.preferredDate, visit.preferredPeriod)}`
+              : 'No preference'}
+          </span>
+        </div>
+      ),
+    },
     vehicleColumn,
     statusColumn,
     {

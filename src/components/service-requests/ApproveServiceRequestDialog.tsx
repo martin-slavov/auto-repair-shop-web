@@ -13,7 +13,7 @@ import SlotPicker from '@/components/visits/SlotPicker'
 import { fieldErrorProps } from '@/lib/fieldErrorProps'
 import { ApiError } from '../../api/client'
 import { approveServiceRequest } from '../../api/serviceRequests'
-import { todayIsoDate } from '../../lib/date'
+import { formatPreferred, isWeekend, todayIsoDate } from '../../lib/date'
 import { SELECT_CLASS } from '../../lib/fieldClasses'
 import type { ServiceRequest } from '../../types/serviceRequest'
 import type { UserAdmin } from '../../types/user'
@@ -28,7 +28,8 @@ function initialValues(request: ServiceRequest | null): FormValues {
   const preferred = request?.preferredDate?.slice(0, 10) ?? ''
   return {
     mechanicId: '',
-    date: preferred !== '' && preferred >= todayIsoDate() ? preferred : '',
+    date:
+      preferred !== '' && preferred >= todayIsoDate() && !isWeekend(preferred) ? preferred : '',
     start: null,
   }
 }
@@ -184,6 +185,21 @@ function ApproveServiceRequestDialog({
             ))}
           </select>
         </FormField>
+
+        {request && (
+          <p className="rounded-md border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
+            {request.preferredDate ? (
+              <>
+                Customer prefers:{' '}
+                <span className="font-medium text-foreground">
+                  {formatPreferred(request.preferredDate, request.preferredPeriod)}
+                </span>
+              </>
+            ) : (
+              'Customer has no preferred date.'
+            )}
+          </p>
+        )}
 
         <SlotPicker
           id="approve-slot"

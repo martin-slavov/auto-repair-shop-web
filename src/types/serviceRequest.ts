@@ -16,6 +16,14 @@ export const SERVICE_REQUEST_TYPE_LABELS: Record<ServiceRequestType, string> = {
   CONSULTATION: 'Consultation',
 }
 
+export type PreferredPeriod = 'MORNING' | 'AFTERNOON' | 'ANY'
+
+export const PREFERRED_PERIOD_LABELS: Record<PreferredPeriod, string> = {
+  MORNING: 'Morning',
+  AFTERNOON: 'Afternoon',
+  ANY: 'Any time',
+}
+
 // ServiceRequestResponseDTO
 export interface ServiceRequest {
   id: number
@@ -25,6 +33,7 @@ export interface ServiceRequest {
   createdAt: string
   licensePlate: string
   preferredDate: string | null
+  preferredPeriod: PreferredPeriod | null
 }
 
 // ServiceRequestCreateDTO
@@ -32,6 +41,7 @@ export interface ServiceRequestCreate {
   vehicleId: number
   description: string
   preferredDate: string | null
+  preferredPeriod: PreferredPeriod | null
   type: ServiceRequestType
 }
 
@@ -39,6 +49,7 @@ export interface ServiceRequestCreate {
 export interface ServiceRequestUpdate {
   description: string
   preferredDate: string | null
+  preferredPeriod: PreferredPeriod | null
   type: ServiceRequestType
 }
 

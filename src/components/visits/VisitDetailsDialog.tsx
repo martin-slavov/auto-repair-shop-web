@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { useVisitParts } from '@/hooks/useVisitParts'
-import { formatDateTime } from '../../lib/date'
+import { formatDateTime, formatPreferred } from '../../lib/date'
 import { formatMoney } from '../../lib/money'
 import { SERVICE_REQUEST_TYPE_LABELS } from '../../types/serviceRequest'
 import {
@@ -81,6 +81,10 @@ function VisitDetailsDialog({
               <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
                 <dt className="text-muted-foreground">Scheduled</dt>
                 <dd className="tabular-nums">{formatDateTime(visit.scheduledDate)}</dd>
+                <dt className="text-muted-foreground">Preferred</dt>
+                <dd className={visit.preferredDate ? 'tabular-nums' : 'text-muted-foreground'}>
+                  {formatPreferred(visit.preferredDate, visit.preferredPeriod)}
+                </dd>
                 <dt className="text-muted-foreground">Completed</dt>
                 <dd className="tabular-nums">
                   {visit.completedDate ? formatDateTime(visit.completedDate) : '—'}

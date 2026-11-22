@@ -1,5 +1,5 @@
 import type { PageQuery } from './api'
-import type { ServiceRequestType } from './serviceRequest'
+import type { PreferredPeriod, ServiceRequestType } from './serviceRequest'
 
 export type ServiceVisitStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'INVOICED'
 
@@ -47,6 +47,8 @@ export interface ServiceVisit {
   vehicleManufacturer: string
   vehicleModel: string
   myRole: MechanicRole | null
+  preferredDate: string | null
+  preferredPeriod: PreferredPeriod | null
 }
 
 // ServiceVisitUpdateDTO

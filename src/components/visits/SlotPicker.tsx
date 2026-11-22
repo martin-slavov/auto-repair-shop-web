@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
 import { getAvailableSlots } from '../../api/serviceVisits'
-import { todayIsoDate } from '../../lib/date'
+import { isWeekend, todayIsoDate } from '../../lib/date'
 import type { AvailableSlot } from '../../types/serviceVisit'
 
 const SLOT_COUNT = 15
@@ -15,11 +15,6 @@ interface SlotsResult {
   key: string
   slots: AvailableSlot[] | null
   error: string | null
-}
-
-function isWeekend(date: string): boolean {
-  const day = new Date(`${date}T00:00:00`).getDay()
-  return day === 0 || day === 6
 }
 
 interface SlotPickerProps {

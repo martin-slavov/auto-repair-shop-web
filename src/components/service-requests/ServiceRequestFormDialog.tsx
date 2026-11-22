@@ -14,9 +14,11 @@ import FormField from '@/components/FormField'
 import { fieldErrorProps } from '@/lib/fieldErrorProps'
 import { ApiError } from '../../api/client'
 import { createServiceRequest, updateServiceRequest } from '../../api/serviceRequests'
-import { todayIsoDate } from '../../lib/date'
+import { addDaysIsoDate, isWeekend, todayIsoDate } from '../../lib/date'
 import {
+  PREFERRED_PERIOD_LABELS,
   SERVICE_REQUEST_TYPE_LABELS,
+  type PreferredPeriod,
   type ServiceRequest,
   type ServiceRequestType,
 } from '../../types/serviceRequest'
@@ -24,13 +26,16 @@ import type { Vehicle } from '../../types/vehicle'
 import { SELECT_CLASS, TEXTAREA_CLASS } from '../../lib/fieldClasses'
 
 const DESCRIPTION_MAX = 500
+const PREFERRED_MAX_DAYS = 90
 
 const TYPE_OPTIONS = Object.entries(SERVICE_REQUEST_TYPE_LABELS) as [ServiceRequestType, string][]
+const PERIOD_OPTIONS = Object.entries(PREFERRED_PERIOD_LABELS) as [PreferredPeriod, string][]
 
 interface FormValues {
   vehicleId: string
   type: ServiceRequestType
   preferredDate: string
+  preferredPeriod: PreferredPeriod
   description: string
 }
 
@@ -38,9 +43,20 @@ function toFormValues(request: ServiceRequest | null): FormValues {
   return {
     vehicleId: '',
     type: request?.type ?? 'SERVICE',
-    preferredDate: request?.preferredDate ?? '',
+    preferredDate: request?.preferredDate?.slice(0, 10) ?? '',
+    preferredPeriod: request?.preferredPeriod ?? 'ANY',
     description: request?.description ?? '',
   }
+}
+
+function validatePreferredDate(date: string): string | null {
+  if (date === '') return null
+  if (date < todayIsoDate()) return 'Preferred date cannot be in the past'
+  if (date > addDaysIsoDate(PREFERRED_MAX_DAYS)) {
+    return `Preferred date must be at most ${PREFERRED_MAX_DAYS} days ahead`
+  }
+  if (isWeekend(date)) return 'Preferred date must be on a working day (Monday to Friday)'
+  return null
 }
 
 interface ServiceRequestFormDialogProps {
@@ -86,6 +102,14 @@ function ServiceRequestFormDialog({
     setValues((prev) => ({ ...prev, [key]: value }))
   }
 
+  function handlePreferredDateChange(date: string) {
+    setValues((prev) => ({
+      ...prev,
+      preferredDate: date,
+      preferredPeriod: date === '' ? 'ANY' : prev.preferredPeriod,
+    }))
+  }
+
   function handleOpenChange(nextOpen: boolean) {
     if (submitting) return
     if (!nextOpen && notFound) {
@@ -97,12 +121,19 @@ function ServiceRequestFormDialog({
   async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault()
     setError(null)
+    const preferredDateError = validatePreferredDate(values.preferredDate)
+    if (preferredDateError) {
+      setFieldErrors({ preferredDate: preferredDateError })
+      return
+    }
     setFieldErrors({})
     setSubmitting(true)
 
+    const hasPreferredDate = values.preferredDate !== ''
     const body = {
       description: values.description,
-      preferredDate: values.preferredDate || null,
+      preferredDate: hasPreferredDate ? values.preferredDate : null,
+      preferredPeriod: hasPreferredDate ? values.preferredPeriod : null,
       type: values.type,
     }
 
@@ -229,16 +260,55 @@ function ServiceRequestFormDialog({
             id="request-preferred-date"
             label="Preferred date (optional)"
             error={fieldErrors.preferredDate}
+            hint={
+              !fieldErrors.preferredDate && (
+                <span id="request-preferred-date-hint" className="text-muted-foreground">
+                  We work Monday to Friday.
+                </span>
+              )
+            }
           >
             <Input
               id="request-preferred-date"
               type="date"
               min={todayIsoDate()}
+              max={addDaysIsoDate(PREFERRED_MAX_DAYS)}
               value={values.preferredDate}
-              onChange={(event) => setValue('preferredDate', event.target.value)}
-              {...fieldErrorProps('request-preferred-date', fieldErrors.preferredDate)}
+              onChange={(event) => handlePreferredDateChange(event.target.value)}
+              aria-invalid={Boolean(fieldErrors.preferredDate)}
+              aria-describedby={
+                fieldErrors.preferredDate
+                  ? 'request-preferred-date-error'
+                  : 'request-preferred-date-hint'
+              }
             />
           </FormField>
+          {(values.preferredDate !== '' || fieldErrors.preferredPeriod) && (
+            <div className="sm:col-start-2">
+              <FormField
+                id="request-preferred-period"
+                label="Preferred time"
+                error={fieldErrors.preferredPeriod}
+              >
+                <select
+                  id="request-preferred-period"
+                  value={values.preferredPeriod}
+                  disabled={values.preferredDate === ''}
+                  onChange={(event) =>
+                    setValue('preferredPeriod', event.target.value as PreferredPeriod)
+                  }
+                  className={SELECT_CLASS}
+                  {...fieldErrorProps('request-preferred-period', fieldErrors.preferredPeriod)}
+                >
+                  {PERIOD_OPTIONS.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            </div>
+          )}
         </div>
 
         <FormField

@@ -1,7 +1,7 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatDate, formatDateTime } from '../../lib/date'
+import { formatDateTime, formatPreferred } from '../../lib/date'
 import { SERVICE_REQUEST_TYPE_LABELS, type ServiceRequest } from '../../types/serviceRequest'
 import type { Vehicle } from '../../types/vehicle'
 import ServiceRequestStatusBadge from './ServiceRequestStatusBadge'
@@ -40,9 +40,9 @@ function ServiceRequestCard({ request, vehicle, onEdit, onDelete }: ServiceReque
         <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
           <dt className="text-muted-foreground">Type</dt>
           <dd>{SERVICE_REQUEST_TYPE_LABELS[request.type]}</dd>
-          <dt className="text-muted-foreground">Preferred date</dt>
-          <dd className="tabular-nums">
-            {request.preferredDate ? formatDate(request.preferredDate) : '—'}
+          <dt className="text-muted-foreground">Preferred</dt>
+          <dd className={request.preferredDate ? 'tabular-nums' : 'text-muted-foreground'}>
+            {formatPreferred(request.preferredDate, request.preferredPeriod)}
           </dd>
         </dl>
         <p className="break-words whitespace-pre-line">{request.description}</p>
